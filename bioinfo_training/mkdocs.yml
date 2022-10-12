@@ -1,0 +1,29 @@
+site_name: Bioinformatics Tutorials for Bacterial Genomics
+theme:
+    name: 'windmill'
+    palette:
+        primary: 'green'
+        accent: 'green'
+repo_name: 'jhayer/bacterial_genomics_training'
+repo_url: 'https://github.com/jhayer/bacterial_genomics_training'
+
+extra:
+    social:
+        - type: 'github'
+          link: 'https://github.com/jhayer'
+
+# extensions
+markdown_extensions:
+    - admonition
+    - codehilite
+    - markdown.extensions.toc:
+        permalink: true
+
+# page tree
+nav:
+    - Home: index.md
+    - Computing Basics:
+        - The Unix system: unix.md
+        - Project organisation: project_organisation.md
+    - High Througput Sequencing data analyses:
+        - Quality Control and Trimming: qc.md
