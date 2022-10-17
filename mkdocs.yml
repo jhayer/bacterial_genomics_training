@@ -27,7 +27,10 @@ nav:
     - Computing Basics:
         - The Unix system: unix.md
         - Project organisation: project_organisation.md
+        - iTrop Computing cluster: itrop.md
     - High Througput Sequencing data analyses:
+        - File formats: file_formats.md
+        - Long reads Basecalling: basecalling.md
         - Short Reads Quality Control and Trimming: qc.md
         - Short reads assembly: sr_assembly.md
     - For the teachers:

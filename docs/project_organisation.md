@@ -15,7 +15,7 @@ Some good practice when you will organise your project directory on the server, 
 >
 > `results/` for all the outputs from the multiple analyses that you will perform
 >
-> `docs/` for all the notes written about the analyses carried out (ex: `history > 20180125.logs` for the commands executed today)
+> `docs/` for all the notes written about the analyses carried out (ex: `history > 20221114.logs` for the commands executed today)
 >
 > `scripts/` for all the scripts that you will use to produce the results
 >
@@ -34,27 +34,21 @@ Some good practice when you will organise your project directory on the server, 
 
 ## Exercise
 
-This exercise combines the knowledge you have acquired during the [unix](unix), [git](git) and [project organisation](project_org) lessons.
+This exercise combines the knowledge you have acquired during the [unix](unix) and [project organisation](project_org) lessons.
 
 You have designed an experiment where you are studying the species and weight of animals caught in plots in a study area.
 Data was collected by a third party a deposited in [figshare](https://figshare.com/articles/Portal_Project_Teaching_Database/1314459), a public database.
 
-Our goals are to download and exploring the data, while keeping an organised project directory that we will version control using git!
+Our goals are to download and exploring the data, while keeping an organised project directory
 
 ### Set up
 
-First we go to our Desktop and create a project directory
+First we go to our working directory for this training and create a project directory
 
 ```bash
-cd ~/Desktop
-mkdir 2018_animals
-cd 2018_animals
-```
-
-and initialize 2018_animals as a git repository
-
-```bash
-git init
+cd ~/bioinfo_training
+mkdir animals
+cd animals
 ```
 
 As we saw during the project organization tutorial, it is good practice to separate data, results and scripts.
@@ -83,13 +77,6 @@ Since we'll never modify our raw data file (or at least we *do not want to!*) it
 
 ```bash
 chmod -w survey_data.csv
-```
-
-Additionally since we are now unable to modify it, we do not want to track it in our git repository.
-We add a .gitignore and tell git to not track the `data/` directory
-
-```bash
-nano .gitignore
 ```
 
 !!! note
@@ -160,22 +147,6 @@ and write
 cut -d ',' -f 12 "$1" | tail -n +2 | sort | uniq -c
 ```
 
-### Keeping track of things
-
-Now keep track of your script in git
-
-```bash
-git add scripts/taxa_count.sh
-git commit -m 'added taxa_count'
-```
-
-as well as your gitignore
-
-```bash
-git add .gitignore
-git commit -m 'added gitignore'
-```
-
 ### Saving the result
 
 ```bash
@@ -184,11 +155,6 @@ bash scripts/taxa_count.sh data/data_joined.csv > results/taxa_count.txt
 
 ```bash
 cat results/taxa_count.txt
-```
-
-```bash
-git add results/taxa_count.txt
-git commit -m 'added results of taxa_count.sh'
 ```
 
 ### Improving our script
@@ -213,19 +179,12 @@ Now it doesn't make much sense to have it named `taxa_count.sh`
 mv scripts/taxa_count.sh scripts/column_count.sh
 ```
 
-and let us not forget to keep track of our changes in git!
-
-```bash
-git add -A
-git commit -m 'made script more flexible about which column to cut on'
-```
-
 !!! question
     which year did we catch the most animals?
     try to answer programmatically.
 
 !!! question
-    save the sorted output to a file in the `results` directory and keep track of it in git.
+    save the sorted output to a file in the `results` directory.
 
 ### Investigating further
 
@@ -237,7 +196,7 @@ we can use `cut` on several columns like this:
 cut -d ',' -f 4,12 "data/data_joined.csv" | tail -n +2 | sort | uniq -c
 ```
 
-Now that we are ahhpy with our one-liner, let us save it in a script:
+Now that we are happy with our one-liner, let us save it in a script:
 
 ```bash
 nano scripts/taxa_per_year.sh
@@ -329,4 +288,4 @@ ls results/years
 ```
 
 !!! question
-    Put your loop in a script, and commit everything with `git`
+    Put your loop in a script
