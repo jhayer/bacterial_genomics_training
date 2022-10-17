@@ -1,29 +1,52 @@
-site_name: Bioinformatics Tutorials for Bacterial Genomics
-theme:
-    name: 'windmill'
-    palette:
-        primary: 'green'
-        accent: 'green'
+site_name: 'Bioinformatics Tutorials for Bacterial Genomics'
+site_author: 'Juliette Hayer and Lokman Galal'
+site_url: 'https://jhayer.github.io/bacterial_genomics_training/'
+
 repo_name: 'jhayer/bacterial_genomics_training'
 repo_url: 'https://github.com/jhayer/bacterial_genomics_training'
 
-extra:
-    social:
-        - type: 'github'
-          link: 'https://github.com/jhayer'
 
-# extensions
-markdown_extensions:
-    - admonition
-    - codehilite
-    - markdown.extensions.toc:
-        permalink: true
+theme:
+    name: 'custommill'
+    main_color: '#546e7a'
+
+    static_templates: [404.html, index.html, css/base.css]
+    search_index_only: true
+    include_search_page: true
+    home: usage
+  #  main_color: "#bb0000"
+    gray: "#d0d0d0"
+    lighter_gray: "#eeeeee"
+    date_time_format: "%Y-%m-%d %H:%M:%S %Z"
+    toc_depth: 2
+
 
 # page tree
 nav:
-    - Home: index.md
+    - Main page: usage.md
     - Computing Basics:
         - The Unix system: unix.md
         - Project organisation: project_organisation.md
     - High Througput Sequencing data analyses:
-        - Quality Control and Trimming: qc.md
+        - Short Reads Quality Control and Trimming: qc.md
+        - Short reads assembly: sr_assembly.md
+    - For the teachers:
+      - Mkdocs usage: mkdocs_usage.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.tabbed
+  - toc:
+      permalink: '#'
+
+plugins:
+  - search
+
+extra:
+  history_buttons: false
+#  version: v1.3.0
+  nav_links:
+    - icon: github
+      icon_type: brand
+      text: jhayer
+      url: 'https://github.com/jhayer'
