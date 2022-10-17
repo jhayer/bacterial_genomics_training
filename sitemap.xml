@@ -1,23 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>None</loc>
-         <lastmod>2022-10-12</lastmod>
+         <loc>https://jhayer.github.io/bacterial_genomics_training/assembly/</loc>
+         <lastmod>2022-10-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-10-12</lastmod>
+         <loc>https://jhayer.github.io/bacterial_genomics_training/basecalling/</loc>
+         <lastmod>2022-10-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-10-12</lastmod>
+         <loc>https://jhayer.github.io/bacterial_genomics_training/file_formats/</loc>
+         <lastmod>2022-10-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-10-12</lastmod>
+         <loc>https://jhayer.github.io/bacterial_genomics_training/mkdocs_usage/</loc>
+         <lastmod>2022-10-17</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://jhayer.github.io/bacterial_genomics_training/project_organisation/</loc>
+         <lastmod>2022-10-17</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://jhayer.github.io/bacterial_genomics_training/project_organisation_w_git/</loc>
+         <lastmod>2022-10-17</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://jhayer.github.io/bacterial_genomics_training/qc/</loc>
+         <lastmod>2022-10-17</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://jhayer.github.io/bacterial_genomics_training/unix/</loc>
+         <lastmod>2022-10-17</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://jhayer.github.io/bacterial_genomics_training/usage/</loc>
+         <lastmod>2022-10-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>

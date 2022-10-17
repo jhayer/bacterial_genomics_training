@@ -8,10 +8,10 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		
 		<meta name="author" content="Juliette Hayer and Lokman Galal">
-		<link rel="canonical" href="https://jhayer.github.io/bacterial_genomics_training/project_organisation/">
+		<link rel="canonical" href="https://jhayer.github.io/bacterial_genomics_training/project_organisation_w_git/">
 		<link rel="shortcut icon" href="../img/favicon.ico">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
-		<title>Project organisation - Bioinformatics Tutorials for Bacterial Genomics</title>
+		<title>Project organisation w git - Bioinformatics Tutorials for Bacterial Genomics</title>
 		<link href="../bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 		<link href="../css/font-awesome-5.12.2-all.min.css" rel="stylesheet">
 		<link href="../css/base.css" rel="stylesheet">
@@ -40,6 +40,8 @@
 				]},
 				{title: "Our first analysis script", url: "#our-first-analysis-script", children: [
 				]},
+				{title: "Keeping track of things", url: "#keeping-track-of-things", children: [
+				]},
 				{title: "Saving the result", url: "#saving-the-result", children: [
 				]},
 				{title: "Improving our script", url: "#improving-our-script", children: [
@@ -60,36 +62,6 @@
 			<a name="_top" aria-hidden="true"></a>
 			
 
-
-
-
-
-
-<div class="row pt-2 pb-4">
-	<div class="col-sm text-center text-sm-left">
-		<a href="../unix/" class="btn btn-sm btn-outline-dark">
-			<i class="fa fa-chevron-left" aria-hidden="true"></i>
-			Previous
-		</a>
-		<a href="../unix/" class="btn btn-sm btn-link">
-			The Unix system
-		</a>
-	</div>
-	
-
-	
-	<div class="col-sm text-center text-sm-right">
-		<a href="../file_formats/" class="btn btn-sm btn-link">
-			File formats
-		</a>
-		<a href="../file_formats/" class="btn btn-sm btn-outline-dark">
-			Next
-			<i class="fa fa-chevron-right" aria-hidden="true"></i>
-		</a>
-	</div>
-	
-</div>
-
 			
 
 			<h2 id="project-organization-and-management">Project organization and management<a class="headerlink" href="#project-organization-and-management" title="Permanent link">#</a></h2>
@@ -101,7 +73,7 @@
 <p>Create 3 or 4 different directories within you project directory (use <code>mkdir</code>):</p>
 <p><code>data/</code> for keeping the raw data</p>
 <p><code>results/</code> for all the outputs from the multiple analyses that you will perform</p>
-<p><code>docs/</code> for all the notes written about the analyses carried out (ex: <code>history &gt; 20221114.logs</code> for the commands executed today)</p>
+<p><code>docs/</code> for all the notes written about the analyses carried out (ex: <code>history &gt; 20180125.logs</code> for the commands executed today)</p>
 <p><code>scripts/</code> for all the scripts that you will use to produce the results
 </p>
 </blockquote>
@@ -122,15 +94,18 @@
 </li>
 </ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">#</a></h2>
-<p>This exercise combines the knowledge you have acquired during the <a href="unix">unix</a> and <a href="project_org">project organisation</a> lessons.</p>
+<p>This exercise combines the knowledge you have acquired during the <a href="unix">unix</a>, <a href="git">git</a> and <a href="project_org">project organisation</a> lessons.</p>
 <p>You have designed an experiment where you are studying the species and weight of animals caught in plots in a study area.
 Data was collected by a third party a deposited in <a href="https://figshare.com/articles/Portal_Project_Teaching_Database/1314459">figshare</a>, a public database.</p>
-<p>Our goals are to download and exploring the data, while keeping an organised project directory</p>
+<p>Our goals are to download and exploring the data, while keeping an organised project directory that we will version control using git!</p>
 <h3 id="set-up">Set up<a class="headerlink" href="#set-up" title="Permanent link">#</a></h3>
-<p>First we go to our working directory for this training and create a project directory</p>
-<pre><code class="language-bash">cd ~/bioinfo_training
-mkdir animals
-cd animals
+<p>First we go to our Desktop and create a project directory</p>
+<pre><code class="language-bash">cd ~/Desktop
+mkdir 2018_animals
+cd 2018_animals
+</code></pre>
+<p>and initialize 2018_animals as a git repository</p>
+<pre><code class="language-bash">git init
 </code></pre>
 <p>As we saw during the project organization tutorial, it is good practice to separate data, results and scripts.
 Let us create those three directories</p>
@@ -146,6 +121,10 @@ mv 2292169 survey_data.csv
 </code></pre>
 <p>Since we'll never modify our raw data file (or at least we <em>do not want to!</em>) it is safer to remove the writing permissions</p>
 <pre><code class="language-bash">chmod -w survey_data.csv
+</code></pre>
+<p>Additionally since we are now unable to modify it, we do not want to track it in our git repository.
+We add a .gitignore and tell git to not track the <code>data/</code> directory</p>
+<pre><code class="language-bash">nano .gitignore
 </code></pre>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -193,10 +172,22 @@ Before counting, we need to sort our input:</p>
 <pre><code class="language-bash"># script that prints the count of species for csv files
 cut -d ',' -f 12 &quot;$1&quot; | tail -n +2 | sort | uniq -c
 </code></pre>
+<h3 id="keeping-track-of-things">Keeping track of things<a class="headerlink" href="#keeping-track-of-things" title="Permanent link">#</a></h3>
+<p>Now keep track of your script in git</p>
+<pre><code class="language-bash">git add scripts/taxa_count.sh
+git commit -m 'added taxa_count'
+</code></pre>
+<p>as well as your gitignore</p>
+<pre><code class="language-bash">git add .gitignore
+git commit -m 'added gitignore'
+</code></pre>
 <h3 id="saving-the-result">Saving the result<a class="headerlink" href="#saving-the-result" title="Permanent link">#</a></h3>
 <pre><code class="language-bash">bash scripts/taxa_count.sh data/data_joined.csv &gt; results/taxa_count.txt
 </code></pre>
 <pre><code class="language-bash">cat results/taxa_count.txt
+</code></pre>
+<pre><code class="language-bash">git add results/taxa_count.txt
+git commit -m 'added results of taxa_count.sh'
 </code></pre>
 <h3 id="improving-our-script">Improving our script<a class="headerlink" href="#improving-our-script" title="Permanent link">#</a></h3>
 <p>We would also like to know the distribution of the numbers of animals caught in plots each year.
@@ -210,6 +201,10 @@ cut -d ',' -f &quot;$2&quot; &quot;$1&quot; | tail -n +2 | sort | uniq -c
 <p>Now it doesn't make much sense to have it named <code>taxa_count.sh</code></p>
 <pre><code class="language-bash">mv scripts/taxa_count.sh scripts/column_count.sh
 </code></pre>
+<p>and let us not forget to keep track of our changes in git!</p>
+<pre><code class="language-bash">git add -A
+git commit -m 'made script more flexible about which column to cut on'
+</code></pre>
 <div class="admonition question">
 <p class="admonition-title">Question</p>
 <p>which year did we catch the most animals?
@@ -217,14 +212,14 @@ try to answer programmatically.</p>
 </div>
 <div class="admonition question">
 <p class="admonition-title">Question</p>
-<p>save the sorted output to a file in the <code>results</code> directory.</p>
+<p>save the sorted output to a file in the <code>results</code> directory and keep track of it in git.</p>
 </div>
 <h3 id="investigating-further">Investigating further<a class="headerlink" href="#investigating-further" title="Permanent link">#</a></h3>
 <p>We'd like to refine our animal count and knowing how many animals of each taxon were captured every year</p>
 <p>we can use <code>cut</code> on several columns like this:</p>
 <pre><code class="language-bash">cut -d ',' -f 4,12 &quot;data/data_joined.csv&quot; | tail -n +2 | sort | uniq -c
 </code></pre>
-<p>Now that we are happy with our one-liner, let us save it in a script:</p>
+<p>Now that we are ahhpy with our one-liner, let us save it in a script:</p>
 <pre><code class="language-bash">nano scripts/taxa_per_year.sh
 </code></pre>
 <p>then save the output to <code>results/taxa_per_year.txt</code></p>
@@ -279,48 +274,18 @@ Now with the loop</p>
 </code></pre>
 <div class="admonition question">
 <p class="admonition-title">Question</p>
-<p>Put your loop in a script</p>
+<p>Put your loop in a script, and commit everything with <code>git</code></p>
 </div>
 
 			<br>
 			
-
-
-
-
-
-
-<div class="row pt-2 pb-4">
-	<div class="col-sm text-center text-sm-left">
-		<a href="../unix/" class="btn btn-sm btn-outline-dark">
-			<i class="fa fa-chevron-left" aria-hidden="true"></i>
-			Previous
-		</a>
-		<a href="../unix/" class="btn btn-sm btn-link">
-			The Unix system
-		</a>
-	</div>
-	
-
-	
-	<div class="col-sm text-center text-sm-right">
-		<a href="../file_formats/" class="btn btn-sm btn-link">
-			File formats
-		</a>
-		<a href="../file_formats/" class="btn btn-sm btn-outline-dark">
-			Next
-			<i class="fa fa-chevron-right" aria-hidden="true"></i>
-		</a>
-	</div>
-	
-</div>
 
 			<br>
 		</div>
 
 		<footer class="container-fluid wm-page-content text-center small">
 			<p>
-			<a href="https://github.com/jhayer/bacterial_genomics_training/edit/master/docs/project_organisation.md" target="_blank">Edit on jhayer/bacterial_genomics_training</a>
+			<a href="https://github.com/jhayer/bacterial_genomics_training/edit/master/docs/project_organisation_w_git.md" target="_blank">Edit on jhayer/bacterial_genomics_training</a>
 			</p>
 			<details>
 				<summary>

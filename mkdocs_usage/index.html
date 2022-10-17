@@ -8,10 +8,10 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		
 		<meta name="author" content="Juliette Hayer and Lokman Galal">
-		<link rel="canonical" href="https://jhayer.github.io/bacterial_genomics_training/unix/">
+		<link rel="canonical" href="https://jhayer.github.io/bacterial_genomics_training/mkdocs_usage/">
 		<link rel="shortcut icon" href="../img/favicon.ico">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
-		<title>The Unix system - Bioinformatics Tutorials for Bacterial Genomics</title>
+		<title>Mkdocs usage - Bioinformatics Tutorials for Bacterial Genomics</title>
 		<link href="../bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 		<link href="../css/font-awesome-5.12.2-all.min.css" rel="stylesheet">
 		<link href="../css/base.css" rel="stylesheet">
@@ -25,9 +25,11 @@
 			var is_outer_page = false;
 			
 			var pageToc = [
-				{title: "Introduction to Unix", url: "#_top", children: [
+				{title: "Welcome to MkDocs", url: "#_top", children: [
 						
-				{title: "Useful resources", url: "#_top", children: [
+				{title: "Commands", url: "#_top", children: [
+				]},
+				{title: "Project layout", url: "#project-layout", children: [
 				]},
 				]},
 			];
@@ -50,47 +52,36 @@
 
 <div class="row pt-2 pb-4">
 	<div class="col-sm text-center text-sm-left">
-		<a href="../usage/" class="btn btn-sm btn-outline-dark">
+		<a href="../qc/" class="btn btn-sm btn-outline-dark">
 			<i class="fa fa-chevron-left" aria-hidden="true"></i>
 			Previous
 		</a>
-		<a href="../usage/" class="btn btn-sm btn-link">
-			Main page
+		<a href="../qc/" class="btn btn-sm btn-link">
+			Short Reads Quality Control and Trimming
 		</a>
 	</div>
 	
 
-	
-	<div class="col-sm text-center text-sm-right">
-		<a href="../project_organisation/" class="btn btn-sm btn-link">
-			Project organisation
-		</a>
-		<a href="../project_organisation/" class="btn btn-sm btn-outline-dark">
-			Next
-			<i class="fa fa-chevron-right" aria-hidden="true"></i>
-		</a>
-	</div>
 	
 </div>
 
 			
 
-			<h1 id="introduction-to-unix">Introduction to Unix<a class="headerlink" href="#introduction-to-unix" title="Permanent link">#</a></h1>
-<p>Most of the introduction to Unix material can be found at <a href="https://software-carpentry.org">https://software-carpentry.org</a></p>
-<p>Many thanks to them for existing!</p>
-<h2 id="useful-resources">Useful resources<a class="headerlink" href="#useful-resources" title="Permanent link">#</a></h2>
-<p>Below you will find links to various useful resources for learning or using the UNIX shell.</p>
+			<h1 id="welcome-to-mkdocs">Welcome to MkDocs<a class="headerlink" href="#welcome-to-mkdocs" title="Permanent link">#</a></h1>
+<p>For full documentation visit <a href="https://www.mkdocs.org">mkdocs.org</a>.</p>
+<h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">#</a></h2>
 <ul>
-<li><a href="http://swcarpentry.github.io/shell-novice/">Link to the course material from software carpentry</a></li>
-<li>
-<p><a href="http://swcarpentry.github.io/shell-novice/reference.html">reference of concepts and commands seen during the lesson</a></p>
-</li>
-<li>
-<p><a href="https://explainshell.com">shell commands explained</a> - a website that shows the help text of any command</p>
-</li>
-<li><a href="https://github.com/awesome-lists/awesome-bash">awesome bash</a> - an awesome list of resources about the bash shell</li>
-<li><a href="http://tldp.org/guides.html">tldp</a> - the linux documentation project (the books can be hard to digest but are very thorough)</li>
+<li><code>mkdocs new [dir-name]</code> - Create a new project.</li>
+<li><code>mkdocs serve</code> - Start the live-reloading docs server.</li>
+<li><code>mkdocs build</code> - Build the documentation site.</li>
+<li><code>mkdocs -h</code> - Print help message and exit.</li>
 </ul>
+<h2 id="project-layout">Project layout<a class="headerlink" href="#project-layout" title="Permanent link">#</a></h2>
+<pre><code>mkdocs.yml    # The configuration file.
+docs/
+    usage.md  # The documentation homepage.
+    ...       # Other markdown pages, images and other files.
+</code></pre>
 
 			<br>
 			
@@ -102,26 +93,16 @@
 
 <div class="row pt-2 pb-4">
 	<div class="col-sm text-center text-sm-left">
-		<a href="../usage/" class="btn btn-sm btn-outline-dark">
+		<a href="../qc/" class="btn btn-sm btn-outline-dark">
 			<i class="fa fa-chevron-left" aria-hidden="true"></i>
 			Previous
 		</a>
-		<a href="../usage/" class="btn btn-sm btn-link">
-			Main page
+		<a href="../qc/" class="btn btn-sm btn-link">
+			Short Reads Quality Control and Trimming
 		</a>
 	</div>
 	
 
-	
-	<div class="col-sm text-center text-sm-right">
-		<a href="../project_organisation/" class="btn btn-sm btn-link">
-			Project organisation
-		</a>
-		<a href="../project_organisation/" class="btn btn-sm btn-outline-dark">
-			Next
-			<i class="fa fa-chevron-right" aria-hidden="true"></i>
-		</a>
-	</div>
 	
 </div>
 
@@ -130,7 +111,7 @@
 
 		<footer class="container-fluid wm-page-content text-center small">
 			<p>
-			<a href="https://github.com/jhayer/bacterial_genomics_training/edit/master/docs/unix.md" target="_blank">Edit on jhayer/bacterial_genomics_training</a>
+			<a href="https://github.com/jhayer/bacterial_genomics_training/edit/master/docs/mkdocs_usage.md" target="_blank">Edit on jhayer/bacterial_genomics_training</a>
 			</p>
 			<details>
 				<summary>

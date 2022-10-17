@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		
+		
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+		<meta name="author" content="Juliette Hayer and Lokman Galal">
+		<link rel="canonical" href="https://jhayer.github.io/bacterial_genomics_training/assembly/">
+		<link rel="shortcut icon" href="../img/favicon.ico">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+		<title>De-novo Genome Assembly - Bioinformatics Tutorials for Bacterial Genomics</title>
+		<link href="../bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+		<link href="../css/font-awesome-5.12.2-all.min.css" rel="stylesheet">
+		<link href="../css/base.css" rel="stylesheet">
+		<link rel="stylesheet" href="../css/highlight-github.css">
+		<script src="../bootstrap/dist/js/bootstrap.min.js"></script>
+		<script src="../js/highlight.pack.js"></script>
+		
+		<script>
+			var base_url = '..';
+			var home_url = '../usage';
+			var is_outer_page = false;
+			
+			var pageToc = [
+				{title: "De-novo Genome Assembly", url: "#_top", children: [
+						
+				{title: "Lecture", url: "#_top", children: [
+				]},
+				{title: "Practical", url: "#practical", children: [
+				]},
+				{title: "Getting the data", url: "#getting-the-data", children: [
+				]},
+				{title: "De-novo assembly", url: "#de-novo-assembly", children: [
+				]},
+				{title: "Quality of the Assembly", url: "#quality-of-the-assembly", children: [
+				]},
+				{title: "Fixing misassemblies", url: "#fixing-misassemblies", children: [
+				]},
+				{title: "Assembly Completeness", url: "#assembly-completeness", children: [
+				]},
+				{title: "Course literature", url: "#course-literature", children: [
+				]},
+				]},
+			];
+
+		</script>
+		<script src="../js/base.js"></script> 
+	</head>
+
+	<body class="inner-page">
+		
+
+		<div class="container-fluid wm-page-content">
+			<a name="_top" aria-hidden="true"></a>
+			
+
+			
+
+			<h1 id="de-novo-genome-assembly">De-novo Genome Assembly<a class="headerlink" href="#de-novo-genome-assembly" title="Permanent link">#</a></h1>
+<h2 id="lecture">Lecture<a class="headerlink" href="#lecture" title="Permanent link">#</a></h2>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vRKVI_pHGubDWeRPaAO7c9g55DzHMO5Lgd7g7AZXvjB77wAAb-wED82lXgV5P7GPF02k-21YMx8ObaX/embed?start=false&loop=false&delayms=3000" frameborder="0" width="480" height="389" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+
+<h2 id="practical">Practical<a class="headerlink" href="#practical" title="Permanent link">#</a></h2>
+<p>In this practical we will perform the assembly of <em>M. genitalium</em>, a bacterium published in 1995 by Fraser et al in Science (<a href="https://www.ncbi.nlm.nih.gov/pubmed/7569993">abstract link</a>).</p>
+<h2 id="getting-the-data">Getting the data<a class="headerlink" href="#getting-the-data" title="Permanent link">#</a></h2>
+<p><em>M. genitalium</em> was sequenced using the MiSeq platform (2 * 150bp).
+The reads were deposited in the ENA Short Read Archive under the accession <a href="https://www.ebi.ac.uk/ena/data/view/ERR486840">ERR486840</a></p>
+<p>Download the 2 fastq files associated with the run.</p>
+<pre><code class="language-bash">wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR486/ERR486840/ERR486840_1.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR486/ERR486840/ERR486840_2.fastq.gz
+</code></pre>
+<p>The files that were deposited in ENA were already trimmed, so we do not have to trim ourselves!</p>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+</div>
+<p>How many reads are in the files?</p>
+<h2 id="de-novo-assembly">De-novo assembly<a class="headerlink" href="#de-novo-assembly" title="Permanent link">#</a></h2>
+<p>We will be using the MEGAHIT assembler to assemble our bacterium</p>
+<pre><code class="language-bash">megahit -1 ERR486840_1.fastq.gz -2 ERR486840_2.fastq.gz -o m_genitalium
+</code></pre>
+<p>This will take a few minutes.</p>
+<p>The result of the assembly is in the directory m_genitalium under the name <code>final.contigs.fa</code></p>
+<p>Let's make a copy of it</p>
+<pre><code class="language-bash">cp m_genitalium/final.contigs.fa m_genitalium.fasta
+</code></pre>
+<p>and look at it</p>
+<pre><code class="language-bash">head m_genitalium.fasta
+</code></pre>
+<h2 id="quality-of-the-assembly">Quality of the Assembly<a class="headerlink" href="#quality-of-the-assembly" title="Permanent link">#</a></h2>
+<p>QUAST is a software evaluating the quality of genome assemblies by computing various metrics, including</p>
+<p>Run Quast on your assembly</p>
+<pre><code class="language-bash">quast.py m_genitalium.fasta -o m_genitalium_report
+</code></pre>
+<p>and take a look at the text report</p>
+<pre><code class="language-bash">cat m_genitalium_report/report.txt
+</code></pre>
+<p>You should see something like</p>
+<pre><code>All statistics are based on contigs of size &gt;= 500 bp, unless otherwise noted (e.g., &quot;# contigs (&gt;= 0 bp)&quot; and &quot;Total length (&gt;= 0 bp)&quot; include all contigs).
+
+Assembly                    m_genitalium
+# contigs (&gt;= 0 bp)         17
+# contigs (&gt;= 1000 bp)      8
+# contigs (&gt;= 5000 bp)      7
+# contigs (&gt;= 10000 bp)     6
+# contigs (&gt;= 25000 bp)     5
+# contigs (&gt;= 50000 bp)     2
+Total length (&gt;= 0 bp)      584267
+Total length (&gt;= 1000 bp)   580160
+Total length (&gt;= 5000 bp)   577000
+Total length (&gt;= 10000 bp)  570240
+Total length (&gt;= 25000 bp)  554043
+Total length (&gt;= 50000 bp)  446481
+# contigs                   11
+Largest contig              368542
+Total length                582257
+GC (%)                      31.71
+N50                         368542
+N75                         77939
+L50                         1
+L75                         2
+# N's per 100 kbp           0.00
+</code></pre>
+<p>which is a summary stats about our assembly.
+Additionally, the file <code>m_genitalium_report/report.html</code></p>
+<p>You can either download it and open it in your own web browser, or we make it available for your convenience:</p>
+<ul>
+<li><a href="data/fastqc/report.html">m_genitalium_report/report.html</a></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+</div>
+<p>N50: length for which the collection of all contigs of that length or longer covers at least 50% of assembly length</p>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+</div>
+<p>How well does the assembly total consensus size and coverage correspond to your earlier estimation?</p>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+</div>
+<p>How many contigs in total did the assembly produce?</p>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+</div>
+<p>What is the N50 of the assembly? What does this mean?</p>
+<h2 id="fixing-misassemblies">Fixing misassemblies<a class="headerlink" href="#fixing-misassemblies" title="Permanent link">#</a></h2>
+<p>Pilon is a software tool which can be used to automatically improve draft assemblies.
+It attempts to make improvements to the input genome, including:</p>
+<ul>
+<li>Single base differences</li>
+<li>Small Indels</li>
+<li>Larger Indels or block substitution events</li>
+<li>Gap filling</li>
+<li>Identification of local misassemblies, including optional opening of new gaps</li>
+</ul>
+<p>Pilon then outputs a FASTA file containing an improved representation of the genome from the read data and an optional VCF file detailing variation seen between the read data and the input genome.</p>
+<p>Before running Pilon itself, we have to align our reads against the assembly</p>
+<pre><code>bowtie2-build m_genitalium.fasta m_genitalium
+bowtie2 -x m_genitalium -1 ERR486840_1.fastq.gz -2 ERR486840_2.fastq.gz | \
+    samtools view -bS -o m_genitalium.bam
+samtools sort m_genitalium.bam -o m_genitalium.sorted.bam
+samtools index m_genitalium.sorted.bam
+</code></pre>
+<p>then we run Pilon</p>
+<pre><code>pilon --genome m_genitalium.fasta --frags m_genitalium.sorted.bam --output m_genitalium_improved
+</code></pre>
+<p>which will correct eventual mismatches in our assembly and write the new improved assembly to <code>m_genitalium_improved.fasta</code></p>
+<h2 id="assembly-completeness">Assembly Completeness<a class="headerlink" href="#assembly-completeness" title="Permanent link">#</a></h2>
+<p>Although quast output a range of metric to assess how contiguous our assembly is, having a long N50 does not guarantee a good assembly: it could be riddled by misassemblies!</p>
+<p>We will run <code>busco</code> to try to find marker genes in our assembly. Marker genes are conserved across a range of species and finding intact conserved genes in our assembly would be a good indication of its quality</p>
+<p>First we need to download and unpack the bacterial datasets used by <code>busco</code></p>
+<pre><code class="language-bash">wget http://busco.ezlab.org/v2/datasets/bacteria_odb9.tar.gz
+tar xzf bacteria_odb9.tar.gz
+</code></pre>
+<p>then we can run <code>busco</code> with</p>
+<pre><code class="language-bash">BUSCO.py -i m_genitalium.fasta -l bacteria_odb9 -o busco_genitalium -m genome
+</code></pre>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+</div>
+<p>How many marker genes has <code>busco</code> found?</p>
+<h2 id="course-literature">Course literature<a class="headerlink" href="#course-literature" title="Permanent link">#</a></h2>
+<p>Course litteraturer for today is:</p>
+<ul>
+<li>Next-Generation Sequence Assembly: Four Stages of Data Processing and Computational Challenges: <a href="https://doi.org/10.1371/journal.pcbi.1003345">https://doi.org/10.1371/journal.pcbi.1003345</a></li>
+</ul>
+
+			<br>
+			
+
+			<br>
+		</div>
+
+		<footer class="container-fluid wm-page-content text-center small">
+			<p>
+			<a href="https://github.com/jhayer/bacterial_genomics_training/edit/master/docs/assembly.md" target="_blank">Edit on jhayer/bacterial_genomics_training</a>
+			</p>
+			<details>
+				<summary>
+					Documentation built with <a href="http://www.mkdocs.org/" target="_blank">MkDocs</a> using  <a href="https://github.com/Siphalor/mkdocs-custommill" target="_blank">CustomMill</a>.
+				</summary>
+				<h6 class="mt-2">Additional Licenses</h6>
+				<ul><li>
+						CustomMill is based on the <a href="https://github.com/gristlabs/mkdocs-windmill" target="_blank">Windmill</a> theme by Grist Labs, licensed under the <a href="https://github.com/gristlabs/mkdocs-windmill/blob/master/LICENSE" target="_blank">MIT License</a>
+					</li>
+					<li>
+						CustomMill includes <a href="https://getbootstrap.com" target="_blank">Bootstrap</a> version 5.1.3. This is available under the <a href="https://github.com/twbs/bootstrap/blob/master/LICENSE" target="_blank">MIT License</a>.
+					</li>
+					<li>
+						Syntax highlighting is implemented via <a href="https://highlightjs.org" target="_blank">highlight.js</a> licensed under the BSD 3-Clause License and the included github styling made by Vasily Polovnyov.
+					</li>
+					<li>
+						Icons on this site are from <a href="https://fontawesome.com/" target="_blank">Font Awesome</a> which is licensed under the <a href="https://fontawesome.com/license/free" target="_blank">Font Awesome Free License</a>.
+					</li></ul>
+				<p>Built at 2022-10-17 13:22:35 UTC</p>
+			</details>
+		</footer>
+
+		
+	</body>
+</html>

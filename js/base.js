@@ -1,63 +1,129 @@
-/* global window, document, $, hljs, elasticlunr, base_url, is_top_frame */
-/* exported getParam, onIframeLoad */
 "use strict";
 
 // The full page consists of a main window with navigation and table of contents, and an inner
 // iframe containing the current article. Which article is shown is determined by the main
 // window's #hash portion of the URL. In fact, we use the simple rule: main window's URL of
 // "rootUrl#relPath" corresponds to iframe's URL of "rootUrl/relPath".
-//
-// The main frame and the contents of the index page actually live in a single generated html
-// file: the outer frame hides one half, and the inner hides the other. TODO: this should be
-// possible to greatly simplify after mkdocs-1.0 release.
 
-var mainWindow = is_top_frame ? window : (window.parent !== window ? window.parent : null);
-var iframeWindow = null;
+var outerWindow = is_outer_page ? window : (window === window.parent ? null : window.parent);
+var innerWindow = null;
 var rootUrl = qualifyUrl(base_url);
 var searchIndex = null;
 var showPageToc = true;
 var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 
 var Keys = {
-  ENTER:  13,
-  ESCAPE: 27,
-  UP:     38,
-  DOWN:   40,
+	ENTER:  13,
+	ESCAPE: 27,
+	UP:     38,
+	DOWN:   40,
 };
+var TABLE_CLASSES = [ 'table', 'table-striped', 'table-hover', 'table-bordered', 'table-condensed' ];
 
-function startsWith(str, prefix) { return str.lastIndexOf(prefix, 0) === 0; }
-function endsWith(str, suffix) { return str.indexOf(suffix, str.length - suffix.length) !== -1; }
+function onReady(doc, fun) {
+	if (doc.readyState === 'interactive' || doc.readyState === 'complete') {
+		fun();
+	} else {
+		doc.addEventListener('DOMContentLoaded', fun);
+	}
+}
+
+function forEach(iterable, fun) {
+	for (var i = 0; i < iterable.length; i++) {
+		fun(iterable[i]);
+	}
+}
+
+function toggleCollapse(collapse, value) {
+	if (value) {
+		collapse.show();
+	} else {
+		collapse.hide();
+	}
+}
+
+function getCollapse(ele) {
+	var collapse = bootstrap.Collapse.getInstance(ele);
+	return collapse ? collapse : new bootstrap.Collapse(ele, { toggle: false });
+}
+
+if (is_outer_page) {
+	// Main window.
+	onReady(document, () => {
+		innerWindow = document.getElementsByClassName('wm-article')[0].contentWindow;
+		initMainWindow();
+		ensureIframeLoaded();
+	});
+
+} else {
+	// Article contents.
+	innerWindow = window;
+	if (outerWindow) {
+		outerWindow.onIframeLoad();
+	} else {
+		// This is a page that ought to be in an iframe. Redirect to load the top page instead.
+		var topUrl = getAbsUrl('#', getRelPath('/', window.location.href));
+		if (topUrl) {
+			window.location.href = topUrl;
+		}
+	}
+
+	// Other initialization of iframe contents.
+	hljs.initHighlightingOnLoad();
+	onReady(document, function() {
+		forEach(document.getElementsByTagName('table'), table => {
+			TABLE_CLASSES.forEach(function(clazz) { table.classList.add(clazz); });
+		});
+		forEach(document.querySelectorAll('a[href*="://"]'), link => {
+			link.target = '_blank';
+		});
+	});
+}
+
+/**
+ * Creates event handlers for click and the enter key
+ */
+function onActivate(sel, fun) {
+	forEach(document.querySelectorAll(sel), ele => {
+		ele.addEventListener('click', () => fun(ele));
+		ele.addEventListener('keydown', e => {
+			if (e.which === 13 || e.which === 32) {
+				fun(ele);
+			}
+		});
+	});
+}
 
 /**
  * Returns whether to use small-screen mode. Note that the same size is used in css @media block.
  */
 function isSmallScreen() {
-  return window.matchMedia("(max-width: 600px)").matches;
+	return window.matchMedia("(max-width: 767.98px)").matches;
 }
 
 /**
  * Given a relative URL, returns the absolute one, relying on the browser to convert it.
  */
 function qualifyUrl(url) {
-  var a = document.createElement('a');
-  a.href = url;
-  return a.href;
+	var a = document.createElement('a');
+	a.href = url;
+	return a.href;
 }
 
 /**
  * Turns an absolute path to relative, stripping out rootUrl + separator.
  */
 function getRelPath(separator, absUrl) {
-  var prefix = rootUrl + (endsWith(rootUrl, separator) ? '' : separator);
-  return startsWith(absUrl, prefix) ? absUrl.slice(prefix.length) : null;
+	var prefix = rootUrl + (rootUrl.endsWith(separator) ? '' : separator);
+	return absUrl.startsWith(prefix) ? absUrl.slice(prefix.length) : null;
 }
 
 /**
  * Turns a relative path to absolute, adding a prefix of rootUrl + separator.
  */
 function getAbsUrl(separator, relPath) {
-  var sep = endsWith(rootUrl, separator) ? '' : separator;
-  return relPath === null ? null : rootUrl + sep + relPath;
+	var sep = rootUrl.endsWith(separator) ? '' : separator;
+	return relPath === null ? null : rootUrl + sep + relPath;
 }
 
 /**
@@ -66,212 +132,208 @@ function getAbsUrl(separator, relPath) {
  * history is likely to get messed up.)
  */
 function updateIframe(enableForwardNav) {
-  // Grey out the "forward" button if we don't expect 'forward' to work.
-  $('#hist-fwd').toggleClass('greybtn', !enableForwardNav);
+	// Grey out the "forward" button if we don't expect 'forward' to work.
+	var histBtn = document.getElementById('hist-fwd');
+	if (histBtn) {
+		histBtn.classList.toggle('bg-gray', !enableForwardNav);
+	}
 
-  var targetRelPath = getRelPath('#', mainWindow.location.href) || '';
-  var targetIframeUrl = getAbsUrl('/', targetRelPath);
-  var loc = iframeWindow.location;
-  var currentIframeUrl = _safeGetLocationHref(loc);
+	var targetRelPath = (getRelPath('#', outerWindow.location.href) || "").replace("~", "#");
+	var targetIframeUrl;
+	if (targetRelPath.length <= 1) {
+		targetIframeUrl = home_url;
+	} else {
+		targetIframeUrl = getAbsUrl('/', targetRelPath);
+	}
+	var innerLoc = innerWindow.location;
+	var currentIframeUrl = _safeGetLocationHref(innerLoc);
 
-  console.log("updateIframe: %s -> %s (%s)", currentIframeUrl, targetIframeUrl,
-    currentIframeUrl === targetIframeUrl ? "same" : "replacing");
+	console.log("updateIframe: %s -> %s (%s)", currentIframeUrl, targetIframeUrl,
+		currentIframeUrl === targetIframeUrl ? "same" : "replacing");
 
-  if (currentIframeUrl !== targetIframeUrl) {
-    loc.replace(targetIframeUrl);
-    onIframeBeforeLoad(targetIframeUrl);
-  }
-  document.body.scrollTop = 0;
+	if (currentIframeUrl !== targetIframeUrl) {
+		innerLoc.replace(targetIframeUrl);
+		onIframeBeforeLoad(targetIframeUrl);
+	}
+	document.body.scrollTop = 0;
 }
 
 /**
  * Returns location.href, catching exception that's triggered if the iframe is on a different domain.
  */
 function _safeGetLocationHref(location) {
-  try {
-    return location.href;
-  } catch (e) {
-    return null;
-  }
+	try {
+		return location.href;
+	} catch (e) {
+		return null;
+	}
 }
 
 /**
  * Returns the value of the given parameter in the URL's query portion.
  */
 function getParam(key) {
-  var params = window.location.search.substring(1).split('&');
-  for (var i = 0; i < params.length; i++) {
-    var param = params[i].split('=');
-    if (param[0] === key) {
-      return decodeURIComponent(param[1].replace(/\+/g, '%20'));
-    }
-  }
-}
-
-/**
- * Update the state of the button toggling table-of-contents. TOC has different behavior
- * depending on screen size, so the button's behavior depends on that too.
- */
-function updateTocButtonState() {
-  var shown;
-  if (isSmallScreen()) {
-    shown = $('.wm-toc-pane').hasClass('wm-toc-dropdown');
-  } else {
-    shown = !$('#main-content').hasClass('wm-toc-hidden');
-  }
-  $('#wm-toc-button').toggleClass('active', shown);
+	return new URLSearchParams(document.location.search).get(key);
 }
 
 /**
  * Update the height of the iframe container. On small screens, we adjust it to fit the iframe
  * contents, so that the page scrolls as a whole rather than inside the iframe.
  */
-function updateContentHeight() {
-  if (isSmallScreen()) {
-    $('.wm-content-pane').height(iframeWindow.document.body.offsetHeight + 20);
-    $('.wm-article').attr('scrolling', 'no');
-  } else {
-    $('.wm-content-pane').height('');
-    $('.wm-article').attr('scrolling', 'auto');
-  }
+function onResize() {
+	if (isSmallScreen()) {
+		var article = document.getElementsByClassName('wm-article')[0];
+		if (article.getAttribute('scrolling') !== 'no') {
+			document.getElementById('wm-search-form').classList.remove('show');
+			article.setAttribute('scrolling', 'no');
+		}
+		document.getElementsByClassName('wm-content-pane')[0].style.height = innerWindow.document.body.offsetHeight + 20 + 'px';
+	} else {
+		document.getElementById('wm-search-form').classList.add('show');
+		document.getElementsByClassName('wm-content-pane')[0].removeAttribute('style');
+		document.getElementsByClassName('wm-article')[0].setAttribute('scrolling', 'auto');
+	}
 }
 
 /**
- * When TOC is a dropdown (on small screens), close it.
+ * Gets the dropdown for the search results menu
+ */
+function getSearchResultsDropdown() {
+	return bootstrap.Dropdown.getOrCreateInstance(document.getElementById('mkdocs-search-results-toggle'));
+}
+
+/**
+ * Close TOC on small screens and hide the search
  */
 function closeTempItems() {
-  $('.wm-toc-dropdown').removeClass('wm-toc-dropdown');
-  $('#mkdocs-search-query').closest('.wm-top-tool').removeClass('wm-top-tool-expanded');
-  updateTocButtonState();
+	if (isSmallScreen()) {
+		forEach(document.getElementsByClassName('wm-toc-triggered'), ele => {
+			ele.classList.remove('wm-toc-triggered');
+		});
+		getSearchResultsDropdown().hide();
+	}
 }
 
 /**
- * Visit the given URL. This changes the hash of the top page to reflect the new URL's relative
- * path, and points the iframe to the new URL.
- */
-function visitUrl(url, event) {
-  var relPath = getRelPath('/', url);
-  if (relPath !== null) {
-    event.preventDefault();
-    var newUrl = getAbsUrl('#', relPath);
-    if (newUrl !== mainWindow.location.href) {
-      mainWindow.history.pushState(null, '', newUrl);
-      updateIframe(false);
-    }
-    closeTempItems();
-    iframeWindow.focus();
-  }
-}
-
-/**
- * Adjusts link to point to a top page, converting URL from "base/path" to "base#path". It also
- * sets a data-adjusted attribute on the link, to skip adjustments on future clicks.
+ * Adjusts link to point to a top page, converting URL from "base/path#tag" to "base#path~tag".
  */
 function adjustLink(linkEl) {
-  if (!linkEl.hasAttribute('data-wm-adjusted')) {
-    linkEl.setAttribute('data-wm-adjusted', 'done');
-    var relPath = getRelPath('/', linkEl.href);
-    if (relPath !== null) {
-      var newUrl = getAbsUrl('#', relPath);
-      linkEl.href = newUrl;
-    }
-  }
+	var relPath = getRelPath('/', linkEl.href);
+	if (relPath !== null) {
+		var newUrl = getAbsUrl('#', relPath.replace('#', '~'));
+		linkEl.href = newUrl;
+	}
 }
 
 /**
  * Given a URL, strips query and fragment, returning just the path.
  */
 function cleanUrlPath(relUrl) {
-  return relUrl.replace(/[#?].*/, '');
+	return relUrl.replace(/[#?].*/, '');
 }
 
 /**
  * Initialize the main window.
  */
 function initMainWindow() {
-  // wm-toc-button either opens the table of contents in the side-pane, or (on smaller screens)
-  // shows the side-pane as a drop-down.
-  $('#wm-toc-button').on('click', function(e) {
-    if (isSmallScreen()) {
-      $('.wm-toc-pane').toggleClass('wm-toc-dropdown');
-      $('#wm-main-content').removeClass('wm-toc-hidden');
-    } else {
-      $('#main-content').toggleClass('wm-toc-hidden');
-      closeTempItems();
-    }
-    updateTocButtonState();
-  });
+	// wm-toc-button either opens the table of contents in the side-pane, or (on smaller screens)
+	// shows the side-pane as a drop-down.
+	onActivate('#wm-toc-button', _ => {
+		if (isSmallScreen()) {
+			window.scroll(0,0);
+		}
+		document.getElementById('main-content').classList.toggle('wm-toc-triggered');
+	});
 
-  // Update the state of the wm-toc-button
-  updateTocButtonState();
-  $(window).on('resize', function() {
-    updateTocButtonState();
-    updateContentHeight();
-  });
+	window.addEventListener('resize', onResize);
+	window.addEventListener('blur', closeTempItems);
 
-  // Connect up the Back and Forward buttons (if present).
-  $('#hist-back').on('click', function(e) { window.history.back(); });
-  $('#hist-fwd').on('click', function(e) { window.history.forward(); });
+	// Connect up the Back and Forward buttons (if present).
+	onActivate('#hist-back', _ => window.history.back());
+	onActivate('#hist-fwd', _ => window.history.forward());
 
-  // When the side-pane is a dropdown, hide it on click-away.
-  $(window).on('blur', closeTempItems);
+	// When we click on an opener in the table of contents, open it.
+	onActivate('.wm-toc-pane .wm-toc-opener', ele => {
+		ele.classList.toggle('wm-toc-open');
+		getCollapse(ele.nextElementSibling).toggle();
+	});
+	onActivate('.wm-toc-li', ele => {
+		if (!ele.classList.contains('wm-page-toc-opener')) {
+			return;
+		}
+		// Ignore clicks while transitioning.
+		if (ele.nextElementSibling.classList.contains('collapsing')) {
+			return;
+		}
+		showPageToc = !showPageToc;
+		ele.classList.toggle('wm-page-toc-open', showPageToc);
+		toggleCollapse(getCollapse(ele.nextElementSibling), showPageToc);
+	});
+	onActivate('.wm-toc-pane a', () => {
+		document.getElementsByClassName('wm-toc-pane')[0].classList.toggle('wm-toc-triggered');
+	});
 
-  // When we click on an opener in the table of contents, open it.
-  $('.wm-toc-pane').on('click', '.wm-toc-opener', function(e) {
-    $(this).toggleClass('wm-toc-open');
-    $(this).next('.wm-toc-li-nested').collapse('toggle');
-  });
-  $('.wm-toc-pane').on('click', '.wm-page-toc-opener', function(e) {
-    // Ignore clicks while transitioning.
-    if ($(this).next('.wm-page-toc').hasClass('collapsing')) { return; }
-    showPageToc = !showPageToc;
-    $(this).toggleClass('wm-page-toc-open', showPageToc);
-    $(this).next('.wm-page-toc').collapse(showPageToc ? 'show' : 'hide');
-  });
+	// Once the article loads in the side-pane, close the dropdown.
+	document.getElementsByClassName('wm-article')[0].addEventListener('load', () => {
+		onInnerWindowUpdated();
 
-  // Once the article loads in the side-pane, close the dropdown.
-  $('.wm-article').on('load', function() {
-    document.title = iframeWindow.document.title;
-    updateContentHeight();
+		document.title = innerWindow.document.title;
+		onResize();
 
-    // We want to update content height whenever the height of the iframe's content changes.
-    // Using MutationObserver seems to be the best way to do that.
-    var observer = new MutationObserver(updateContentHeight);
-    observer.observe(iframeWindow.document.body, {
-      attributes: true,
-      childList: true,
-      characterData: true,
-      subtree: true
-    });
+		// We want to update content height whenever the height of the iframe's content changes.
+		// Using MutationObserver seems to be the best way to do that.
+		var observer = new MutationObserver(onResize);
+		observer.observe(innerWindow.document.body, {
+			attributes: true,
+			childList: true,
+			characterData: true,
+			subtree: true
+		});
 
-    iframeWindow.focus();
-  });
+		innerWindow.focus();
+	});
 
-  // Initialize search functionality.
-  initSearch();
+	// Initialize search functionality.
+	initSearch();
 
-  // Load the iframe now, and whenever we navigate the top frame.
-  setTimeout(function() { updateIframe(false); }, 0);
-  // For our usage, 'popstate' or 'hashchange' would work, but only 'hashchange' work on IE.
-  $(window).on('hashchange', function() { updateIframe(true); });
+	// Load the iframe now, and whenever we navigate the top frame.
+	setTimeout(() => updateIframe(false), 0);
+	window.addEventListener('hashchange', () => updateIframe(false));
+}
+
+function onInnerWindowUpdated() {
+	window.history.replaceState(null, '', getAbsUrl('#', getRelPath('/', innerWindow.location.href).replace('#', '~')));
+	getSearchResultsDropdown().hide();
 }
 
 function onIframeBeforeLoad(url) {
-  $('.wm-current').removeClass('wm-current');
-  closeTempItems();
+	forEach(document.getElementsByClassName('wm-current'), ele => {
+		ele.classList.remove('wm-current');
+	});
+	closeTempItems();
 
-  var tocLi = getTocLi(url);
-  tocLi.addClass('wm-current');
-  tocLi.parents('.wm-toc-li-nested')
-    // It's better to open parent items immediately without a transition.
-    .removeClass('collapsing').addClass('collapse in').height('')
-    .prev('.wm-toc-opener').addClass('wm-toc-open');
+	var tocLi = getTocLi(url);
+	if (tocLi) {
+		tocLi.classList.add('wm-current');
+	}
+	for (; tocLi && !tocLi.classList.contains('wm-toc-pane'); tocLi = tocLi.parentElement) {
+		if (tocLi.classList.contains('wm-toc-li-nested')) {
+			tocLi.classList.remove('collapsing');
+			tocLi.classList.add('collapse', 'show');
+			tocLi.removeAttribute('style');
+			tocLi.previousElementSibling.classList.add('wm-toc-open');
+		}
+	}
 }
 
 function getTocLi(url) {
-  var relPath = getAbsUrl('#', getRelPath('/', cleanUrlPath(url)));
-  var selector = '.wm-article-link[href="' + relPath + '"]';
-  return $(selector).closest('.wm-toc-li');
+	var relPath = getRelPath('/', cleanUrlPath(url));
+	var elem = document.querySelector('.wm-article-link[href="' + relPath + '"]');
+	if (elem) {
+		return elem.parentElement;
+	} else {
+		return null;
+	}
 }
 
 var _deferIframeLoad = false;
@@ -279,100 +341,73 @@ var _deferIframeLoad = false;
 // Sometimes iframe is loaded before main window's ready callback. In this case, we defer
 // onIframeLoad call until the main window has initialized.
 function ensureIframeLoaded() {
-  if (_deferIframeLoad) {
-    onIframeLoad();
-  }
+	if (_deferIframeLoad) {
+		onIframeLoad();
+	}
 }
 
 function onIframeLoad() {
-  if (!iframeWindow) { _deferIframeLoad = true; return; }
-  var url = iframeWindow.location.href;
-  onIframeBeforeLoad(url);
+	if (!innerWindow) { _deferIframeLoad = true; return; }
+	var url = innerWindow.location.href;
+	onIframeBeforeLoad(url);
+	innerWindow.addEventListener('hashchange', onInnerWindowUpdated);
+	innerWindow.addEventListener('click', () => getSearchResultsDropdown().hide(), { capture: true });
 
-  if (iframeWindow.pageToc) {
-    var relPath = getAbsUrl('#', getRelPath('/', cleanUrlPath(url)));
-    renderPageToc(getTocLi(url), relPath, iframeWindow.pageToc);
-  }
-  iframeWindow.focus();
+	if (innerWindow.pageToc) {
+		var relPath = getAbsUrl('#', getRelPath('/', cleanUrlPath(url)));
+		var li = getTocLi(url);
+		if (!li.classList.contains('wm-page-toc-open')) {
+			renderPageToc(li, relPath, innerWindow.pageToc);
+		}
+	}
+
+	innerWindow.focus();
 }
 
 /**
  * Hides a bootstrap collapsible element, and removes it from DOM once hidden.
  */
 function collapseAndRemove(collapsibleElem) {
-  if (!collapsibleElem.hasClass('in')) {
-    // If the element is already hidden, just remove it immediately.
-    collapsibleElem.remove();
-  } else {
-    collapsibleElem.on('hidden.bs.collapse', function() {
-      collapsibleElem.remove();
-    })
-    .collapse('hide');
-  }
+	collapsibleElem.addEventListener('hidden.bs.collapse', () => {
+		collapsibleElem.parentElement.removeChild(collapsibleElem);
+	});
+	getCollapse(collapsibleElem).hide();
 }
 
 function renderPageToc(parentElem, pageUrl, pageToc) {
-  var ul = $('<ul class="wm-toctree">');
-  function addItem(tocItem) {
-    ul.append($('<li class="wm-toc-li">')
-      .append($('<a class="wm-article-link wm-page-toc-text">')
-        .attr('href', pageUrl + tocItem.url)
-        .attr('data-wm-adjusted', 'done')
-        .text(tocItem.title)));
-    if (tocItem.children) {
-      tocItem.children.forEach(addItem);
-    }
-  }
-  pageToc.forEach(addItem);
+	var ul = document.createElement('ul');
+	ul.classList.add('wm-page-toc-tree');
+	function addItem(tocItem) {
+		var li = document.createElement('li');
+		li.classList.add('wm-toc-li');
+		var link = document.createElement('a');
+		link.href = pageUrl + tocItem.url.replace('#', '~');
+		link.classList.add('wm-article-link', 'wm-page-toc-text');
+		link.innerHTML = tocItem.title;
+		li.append(link);
+		ul.append(li);
 
-  $('.wm-page-toc-opener').removeClass('wm-page-toc-opener wm-page-toc-open');
-  collapseAndRemove($('.wm-page-toc'));
+		if (tocItem.children) {
+			tocItem.children.forEach(addItem);
+		}
+	}
+	pageToc.forEach(addItem);
 
-  parentElem.addClass('wm-page-toc-opener').toggleClass('wm-page-toc-open', showPageToc);
-  $('<li class="wm-page-toc wm-toc-li-nested collapse">').append(ul).insertAfter(parentElem)
-    .collapse(showPageToc ? 'show' : 'hide');
+	forEach(document.getElementsByClassName('wm-page-toc-opener'), ele => {
+		ele.classList.remove('wm-page-toc-open');
+		ele.classList.remove('wm-page-toc-opener');
+	});
+	forEach(document.getElementsByClassName('wm-page-toc'), collapseAndRemove);
+
+	var li = document.createElement('li');
+	li.classList.add('wm-page-toc', 'wm-toc-li-nested', 'collapse');
+	li.append(ul);
+	parentElem.insertAdjacentElement('afterend', li);
+
+	parentElem.classList.add('wm-page-toc-opener');
+	parentElem.classList.toggle('wm-page-toc-open', showPageToc);
+	toggleCollapse(getCollapse(li), showPageToc);
 }
-
-
-if (!mainWindow) {
-  // This is a page that ought to be in an iframe. Redirect to load the top page instead.
-  var topUrl = getAbsUrl('#', getRelPath('/', window.location.href));
-  if (topUrl) {
-    window.location.href = topUrl;
-  }
-
-} else {
-  // Adjust all links to point to the top page with the right hash fragment.
-  $(document).ready(function() {
-    $('a').each(function() { adjustLink(this); });
-  });
-
-  // For any dynamically-created links, adjust them on click.
-  $(document).on('click', 'a:not([data-wm-adjusted])', function(e) { adjustLink(this); });
-}
-
-if (is_top_frame) {
-  // Main window.
-  $(document).ready(function() {
-    iframeWindow = $('.wm-article')[0].contentWindow;
-    initMainWindow();
-    ensureIframeLoaded();
-  });
-
-} else {
-  // Article contents.
-  iframeWindow = window;
-  if (mainWindow) {
-    mainWindow.onIframeLoad();
-  }
-
-  // Other initialization of iframe contents.
-  hljs.initHighlightingOnLoad();
-  $(document).ready(function() {
-    $('table').addClass('table table-striped table-hover table-bordered table-condensed');
-  });
-}
-
 
 var searchIndexReady = false;
 
@@ -380,189 +415,189 @@ var searchIndexReady = false;
  * Initialize search functionality.
  */
 function initSearch() {
-  // Create elasticlunr index.
-  searchIndex = elasticlunr(function() {
-    this.setRef('location');
-    this.addField('title');
-    this.addField('text');
-  });
+	// Create elasticlunr index.
+	searchIndex = elasticlunr(function() {
+		this.setRef('location');
+		this.addField('title');
+		this.addField('text');
+	});
 
-  var searchBox = $('#mkdocs-search-query');
-  var searchResults = $('#mkdocs-search-results');
+	var searchBox = document.getElementById('mkdocs-search-query');
+	var searchResults = document.getElementById('mkdocs-search-results');
 
-  // Fetch the prebuilt index data, and add to the index.
-  $.getJSON(base_url + '/search/search_index.json')
-  .done(function(data) {
-    data.docs.forEach(function(doc) {
-      searchIndex.addDoc(doc);
-    });
-    searchIndexReady = true;
-    $(document).trigger('searchIndexReady');
-  });
+	// Fetch the prebuilt index data, and add to the index.
+	var req = new XMLHttpRequest();
+	req.onreadystatechange = () => {
+		if (req.readyState === 4) {
+			if (req.status === 200) {
+				var data = JSON.parse(req.responseText);
+				data.docs.forEach(doc => {
+					searchIndex.addDoc(doc);
+				});
+				searchIndexReady = true;
+				document.dispatchEvent(new Event('searchIndexReady'));
+			}
+		}
+	};
+	req.open('GET', base_url + '/search/search_index.json', true);
+	req.send();
 
-  function showSearchResults(optShow) {
-    var show = (optShow === false ? false : Boolean(searchBox.val()));
-    if (show) {
-      doSearch({
-        resultsElem: searchResults,
-        query: searchBox.val(),
-        snippetLen: 100,
-        limit: 10
-      });
-    }
-    searchResults.parent().toggleClass('open', show);
-    return show;
-  }
+	function showSearchResults(optShow) {
+		var show = (optShow === false ? false : Boolean(searchBox.value));
+		if (show) {
+			doSearch({
+				resultsElem: searchResults,
+				query: searchBox.value,
+				snippetLen: 100,
+				limit: 10
+			});
+		}
+		toggleCollapse(getSearchResultsDropdown(), show);
+		return show;
+	}
 
-  searchBox.on('click', function(e) {
-    if (!searchResults.parent().hasClass('open')) {
-      if (showSearchResults()) {
-        e.stopPropagation();
-      }
-    }
-  });
+	searchBox.addEventListener('click', e => {
+		if (!searchResults.classList.contains('show')) {
+			if (showSearchResults()) {
+				e.stopPropagation();
+			}
+		}
+	});
 
-  // Search automatically and show results on keyup event.
-  searchBox.on('keyup', function(e) {
-    var show = (e.which !== Keys.ESCAPE && e.which !== Keys.ENTER);
-    showSearchResults(show);
-  });
+	// Search automatically and show results on keyup event.
+	searchBox.addEventListener('keyup', e => {
+		var show = (e.which !== Keys.ESCAPE && e.which !== Keys.ENTER);
+		showSearchResults(show);
+	});
 
-  // Open the search box (and run the search) on up/down arrow keys.
-  searchBox.on('keydown', function(e) {
-    if (e.which === Keys.UP || e.which === Keys.DOWN) {
-      if (showSearchResults()) {
-        e.stopPropagation();
-        e.preventDefault();
-        setTimeout(function() {
-          searchResults.find('a').eq(e.which === Keys.UP ? -1 : 0).focus();
-        }, 0);
-      }
-    }
-  });
+	// Open the search box (and run the search) on up/down arrow keys.
+	searchBox.addEventListener('keydown', e => {
+		if (e.which === Keys.UP || e.which === Keys.DOWN) {
+			if (showSearchResults()) {
+				e.stopPropagation();
+				e.preventDefault();
+				setTimeout(() => {
+					var results = searchResults.getElementsByTagName('a');
+					if (e.which === Keys.UP) {
+						results[results.length - 1].focus();
+					} else {
+						results[0].focus();
+					}
+				}, 0);
+			}
+		}
+	});
 
-  searchResults.on('keydown', function(e) {
-    if (e.which === Keys.UP || e.which === Keys.DOWN) {
-      if (searchResults.find('a').eq(e.which === Keys.UP ? 0 : -1)[0] === e.target) {
-        searchBox.focus();
-        e.stopPropagation();
-        e.preventDefault();
-      }
-    }
-  });
-
-  $(searchResults).on('click', '.search-all', function(e) {
-    e.stopPropagation();
-    e.preventDefault();
-    $('#wm-search-form').trigger('submit');
-  });
-
-  // Redirect to the search page on Enter or button-click (form submit).
-  $('#wm-search-form').on('submit', function(e) {
-    var url = this.action + '?' + $(this).serialize();
-    visitUrl(url, e);
-    searchResults.parent().removeClass('open');
-  });
-
-  $('#wm-search-show,#wm-search-go').on('click', function(e) {
-    if (isSmallScreen()) {
-      e.preventDefault();
-      var el = $('#mkdocs-search-query').closest('.wm-top-tool');
-      el.toggleClass('wm-top-tool-expanded');
-      if (el.hasClass('wm-top-tool-expanded')) {
-        setTimeout(function() {
-          $('#mkdocs-search-query').focus();
-          showSearchResults();
-        }, 0);
-        $('#mkdocs-search-query').focus();
-      }
-    }
-  });
+	searchResults.addEventListener('keydown', e => {
+		if (e.which !== Keys.ENTER) {
+			searchBox.focus();
+		}
+	});
 }
 
 function escapeRegex(s) {
-  return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+	return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
 /**
  * This helps construct useful snippets to show in search results, and highlight matches.
  */
 function SnippetBuilder(query) {
-  var termsPattern = elasticlunr.tokenizer(query).map(escapeRegex).join("|");
-  this._termsRegex = termsPattern ? new RegExp(termsPattern, "gi") : null;
+	var termsPattern = elasticlunr.tokenizer(query).map(escapeRegex).join("|");
+	this._termsRegex = termsPattern ? new RegExp(termsPattern, "gi") : null;
 }
 
 SnippetBuilder.prototype.getSnippet = function(text, len) {
-  if (!this._termsRegex) {
-    return text.slice(0, len);
-  }
+	if (!this._termsRegex) {
+		return text.slice(0, len);
+	}
 
-  // Find a position that includes something we searched for.
-  var pos = text.search(this._termsRegex);
-  if (pos < 0) { pos = 0; }
+	// Find a position that includes something we searched for.
+	var pos = text.search(this._termsRegex);
+	if (pos < 0) { pos = 0; }
 
-  // Find a period before that position (a good starting point).
-  var start = text.lastIndexOf('.', pos) + 1;
-  if (pos - start > 30) {
-    // If too long to previous period, give it 30 characters, and find a space before that.
-    start = text.lastIndexOf(' ', pos - 30) + 1;
-  }
-  var rawSnippet = text.slice(start, start + len);
-  return rawSnippet.replace(this._termsRegex, '<b>$&</b>');
+	// Find a period before that position (a good starting point).
+	var start = text.lastIndexOf('.', pos) + 1;
+	if (pos - start > 30) {
+		// If too long to previous period, give it 30 characters, and find a space before that.
+		start = text.lastIndexOf(' ', pos - 30) + 1;
+	}
+	var rawSnippet = text.slice(start, start + len);
+	return rawSnippet.replace(this._termsRegex, '<b>$&</b>');
 };
 
 /**
  * Search the elasticlunr index for the given query, and populate the dropdown with results.
  */
 function doSearch(options) {
-  var resultsElem = options.resultsElem;
-  resultsElem.empty();
+	var resultsElem = options.resultsElem;
+	resultsElem.innerHTML = '';
 
-  // If the index isn't ready, wait for it, and search again when ready.
-  if (!searchIndexReady) {
-    resultsElem.append($('<li class="disabled"><a class="search-link">SEARCHING...</a></li>'));
-    $(document).one('searchIndexReady', function() { doSearch(options); });
-    return;
-  }
+	// If the index isn't ready, wait for it, and search again when ready.
+	if (!searchIndexReady) {
+		resultsElem.innerHTML = '<a class="dropdown-item disabled">SEARCHING...</a>';
+		document.addEventListener('searchIndexReady', () => doSearch(options), { once: true });
+		return;
+	}
 
-  var query = options.query;
-  var snippetLen = options.snippetLen;
-  var limit = options.limit;
+	var query = options.query;
+	var snippetLen = options.snippetLen;
+	var limit = options.limit;
 
-  if (query === '') { return; }
+	if (query === '') { return; }
 
-  var results = searchIndex.search(query, {
-    fields: { title: {boost: 10}, text: { boost: 1 } },
-    expand: true,
-    bool: "AND"
-  });
+	var results = searchIndex.search(query, {
+		fields: { title: { boost: 10 }, text: { boost: 1 } },
+		expand: true,
+		bool: "AND"
+	});
 
-  var snippetBuilder = new SnippetBuilder(query);
-  if (results.length > 0){
-    var len = Math.min(results.length, limit || Infinity);
-    for (var i = 0; i < len; i++) {
-      var doc = searchIndex.documentStore.getDoc(results[i].ref);
-      var snippet = snippetBuilder.getSnippet(doc.text, snippetLen);
-      resultsElem.append(
-        $('<li>').append($('<a class="search-link">').attr('href', pathJoin(base_url, doc.location))
-          .append($('<div class="search-title">').text(doc.title))
-          .append($('<div class="search-text">').html(snippet)))
-      );
-    }
-    resultsElem.find('a').each(function() { adjustLink(this); });
-    if (limit) {
-      resultsElem.append($('<li role="separator" class="divider"></li>'));
-      resultsElem.append($(
-        '<li><a class="search-link search-all" href="' + base_url + '/search.html">' +
-        '<div class="search-title">SEE ALL RESULTS</div></a></li>'));
-    }
-  } else {
-    resultsElem.append($('<li class="disabled"><a class="search-link">NO RESULTS FOUND</a></li>'));
-  }
+	var snippetBuilder = new SnippetBuilder(query);
+	if (results.length > 0){
+		var len = Math.min(results.length, limit || Infinity);
+		var lastDoc; // Used to check for duplicate results due to nesting of headings
+		for (var i = 0; i < len; i++) {
+			var doc = searchIndex.documentStore.getDoc(results[i].ref);
+
+			if (lastDoc && lastDoc.location.startsWith(doc.location) && doc.text.includes(lastDoc.text)) {
+				continue;
+			}
+			lastDoc = doc;
+
+			var item = document.createElement('a');
+			item.classList.add('dropdown-item');
+			item.setAttribute('href', limit == 0 ? doc.location : pathJoin(base_url, doc.location));
+			var header = document.createElement('h6');
+			header.classList.add('dropdown-header');
+			header.innerHTML = snippetBuilder.getSnippet(doc.title, snippetLen);
+			var text = document.createElement('p');
+			text.innerHTML = snippetBuilder.getSnippet(doc.text, snippetLen);
+			item.append(header, text);
+			resultsElem.append(item);
+		}
+		if (limit != 0) {
+			forEach(resultsElem.getElementsByTagName('a'), adjustLink);
+		}
+		if (limit) {
+			var divider = document.createElement('div');
+			divider.classList.add('dropdown-divider');
+			divider.setAttribute('role', 'separator');
+			resultsElem.appendChild(divider);
+			var allResults = document.createElement('a');
+			allResults.classList.add('dropdown-item');
+			allResults.id = 'search-show-all';
+			allResults.setAttribute('target', 'article');
+			allResults.href = base_url + '/search.html?q=' + query;
+			allResults.innerHTML = 'SEE ALL RESULTS';
+			resultsElem.append(allResults);
+		}
+	} else {
+		resultsElem.innerHTML = '<span class="dropdown-item-text">NO RESULTS FOUND</span>';
+	}
 }
 
 function pathJoin(prefix, suffix) {
-  var nPrefix = endsWith(prefix, "/") ? prefix.slice(0, -1) : prefix;
-  var nSuffix = startsWith(suffix, "/") ? suffix.slice(1) : suffix;
-  return nPrefix + "/" + nSuffix;
+	var nPrefix = prefix.endsWith('/') ? prefix.slice(0, -1) : prefix;
+	var nSuffix = suffix.startsWith('/') ? suffix.slice(1) : suffix;
+	return nPrefix + '/' + nSuffix;
 }
