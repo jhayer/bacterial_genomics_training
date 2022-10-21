@@ -30,12 +30,12 @@ We will be using the SPAdes assembler to assemble our bacterium
 ```bash
 module load bioinfo/SPAdes/3.15.3
 
-spades.py -1 K2_Illu_trimmed_R1.fastq.gz -2 K2_Illu_trimmed_R2.fastq.gz -o Kp2_spades_assembly -t 4 --isolate
+spades.py -1 K2_Illu_trimmed_R1.fastq.gz -2 K2_Illu_trimmed_R2.fastq.gz -o K2_spades_assembly -t 4 --isolate
 ```
 
 This will take some time...
 
-The result of the assembly is in the directory `Kp2_spades_assembly` under the name `scaffolds.fasta`
+The result of the assembly is in the directory `K2_spades_assembly` under the name `scaffolds.fasta`
 First, have a look of the SPAdes output directory.
 
 !!! question
@@ -44,13 +44,13 @@ what are the different files there?
 Let's make a link of the file containing the assembled scaffolds
 
 ```bash
-ln -s Kp2_spades_assembly/scaffolds.fasta Kp2_spades_scaffolds.fasta
+ln -s K2_spades_assembly/scaffolds.fasta K2_spades_scaffolds.fasta
 ```
 
 and look at it
 
 ```bash
-head Kp2_spades_scaffolds.fasta
+head K2_spades_scaffolds.fasta
 ```
 
 ## Quality of the Assembly
@@ -64,14 +64,14 @@ module module load bioinfo/quast/5.0.2
 module load bioinfo/bedtools/2.30.0
 module load bioinfo/minimap2/2.24
 
-quast.py -o Kp2_spades_quast -t 2 --conserved-genes-finding --gene-finding \
-  --pe1 K2_Illu_trimmed_R1.fastq.gz --pe2 K2_Illu_trimmed_R2.fastq.gz Kp2_spades_scaffolds.fasta
+quast.py -o K2_spades_quast -t 2 --conserved-genes-finding --gene-finding \
+  --pe1 K2_Illu_trimmed_R1.fastq.gz --pe2 K2_Illu_trimmed_R2.fastq.gz K2_spades_scaffolds.fasta
 ```
 
 and take a look at the text report
 
 ```bash
-cat Kp2_spades_quast/report.txt
+cat K2_spades_quast/report.txt
 ```
 
 You should see something like
@@ -84,11 +84,11 @@ Here add the quast results
 ```
 
 which is a summary stats about our assembly.
-Additionally, the file `Kp2_spades_quast/report.html`
+Additionally, the file `K2_spades_quast/report.html`
 
 You can either download it and open it in your own web browser, or we make it available for your convenience:
 
-- [Kp2_spades_quast/report.html](data/...)
+- [K2_spades_quast/report.html](data/...)
 
 !!! note
 N50: length for which the collection of all contigs of that length or longer covers at least 50% of assembly length
@@ -121,7 +121,7 @@ Which dataset should we select?
 then we can run `busco` with:
 
 ```bash
-busco -i Kp2_spades_scaffolds.fasta -o Kp2_spades_busco --mode genome --lineage_dataset enterobacterales_odb10
+busco -i K2_spades_scaffolds.fasta -o K2_spades_busco --mode genome --lineage_dataset enterobacterales_odb10
 ```
 
 !!! question

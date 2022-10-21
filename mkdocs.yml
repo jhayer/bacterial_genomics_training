@@ -27,12 +27,18 @@ nav:
     - Computing Basics:
         - The Unix system: unix.md
         - Project organisation: project_organisation.md
-        - iTrop Computing cluster: itrop.md
-    - High Througput Sequencing data analyses:
+        - iTrop computing cluster: itrop.md
+    - HTS data analyses:
         - File formats: file_formats.md
         - Long reads Basecalling: basecalling.md
-        - Short Reads Quality Control and Trimming: qc.md
-        - Short reads assembly: sr_assembly.md
+        - Short Reads Quality Control and Trimming: qc_sr.md
+        - Short reads assembly: assembly_sr.md
+        - Hybrid assembly: hybrid_assembly.md
+        - Mapping and variant calling: variant_calling.md
+    - Bacterial Genomics and AMR:
+        - MLST: mlst.md
+        - Antimicrobial Resistance Genes: args.md
+
     - For the teachers:
       - Mkdocs usage: mkdocs_usage.md
 
