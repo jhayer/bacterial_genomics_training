@@ -70,13 +70,14 @@ then we download our data file and give it a more appropriate name
 
 ```bash
 wget https://ndownloader.figshare.com/files/2292169
-mv 2292169 survey_data.csv
+mv 2292169 data_joined.csv
 ```
 
 Since we'll never modify our raw data file (or at least we *do not want to!*) it is safer to remove the writing permissions
 
 ```bash
-chmod -w survey_data.csv
+chmod -w data_joined.csv
+ls -l
 ```
 
 !!! note
@@ -87,6 +88,7 @@ chmod -w survey_data.csv
 Let us look at the first few lines of our file:
 
 ```bash
+cd ..
 head data/data_joined.csv
 ```
 
