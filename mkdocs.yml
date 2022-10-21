@@ -38,6 +38,7 @@ nav:
     - Bacterial Genomics and AMR:
         - MLST: mlst.md
         - Antimicrobial Resistance Genes: args.md
+        - Plasmids: plasmids.md
 
     - For the teachers:
       - Mkdocs usage: mkdocs_usage.md
