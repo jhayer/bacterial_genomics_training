@@ -15,6 +15,11 @@ The sequenced organism is a *Klebsiella pneumoniae* bacterium, a potentially fat
 ...
 [Here](https://www.mdpi.com/2076-2607/9/12/2560/htm) is the article of the study.
 
+## Before we start we prepare our computing environment
+
+We will first run the appropriate `srun` command to book the computing cores (cpus) on the cluster.
+The teacher will help you with this command.
+
 ## Downloading the data
 
 The raw data were deposited at the European Nucleotide Archive, under the accession number PRJEB45084.
@@ -44,8 +49,8 @@ md5sum K2_Illu_R1.fastq.gz K2_Illu_R2.fastq.gz
 you should see this
 
 ```
-MD5 (K2_Illu_R1.fastq.gz) = e4f7a5de95bbb5d5d58c142afa9bc838
-MD5 (K2_Illu_R2.fastq.gz) = a5659b9b4646d15622a1a7a5c41fb22c
+e4f7a5de95bbb5d5d58c142afa9bc838  K2_Illu_R1.fastq.gz
+a5659b9b4646d15622a1a7a5c41fb22c  K2_Illu_R2.fastq.gz
 ```
 
 and now look at the file names and their size
@@ -55,8 +60,9 @@ ls -l
 ```
 
 ```
--rw-r--r--  1 2021jh002  staff    83M Oct 21 11:18 K2_Illu_R1.fastq.gz
--rw-r--r--  1 2021jh002  staff    89M Oct 21 12:17 K2_Illu_R2.fastq.gz
+total 172M
+-rw-r--r-- 1 hayer 83M Oct 25 16:00 K2_Illu_R1.fastq.gz
+-rw-r--r-- 1 hayer 89M Oct 25 16:00 K2_Illu_R2.fastq.gz
 ```
 
 One last thing before we get to the quality control: those files are writeable.
@@ -67,6 +73,9 @@ We fix that before going further
 ```bash
 chmod u-w *.fastq.gz
 ```
+
+!!! question
+Which difference do you see when you type `ls -s` ?
 
 ## Working Directory
 
@@ -99,7 +108,7 @@ You can read more on the FASTQ format in the [File Formats](file_formats.md) les
 Where does the filename come from?
 
 !!! question
-Why are there 1 and 2 in the file names?
+Why are there R1 and R2 in the file names?
 
 ## FastQC
 
@@ -112,12 +121,14 @@ However, FastQC is also available as a command line utility on the training serv
 To run FastQC on our two files
 
 ```bash
-module load bioinfo/...
+module load bioinfo/FastQC/0.11.9
 
 fastqc K2_Illu_R1.fastq.gz K2_Illu_R2.fastq.gz
 ```
 
-and look what FastQC has produced
+and look what FastQC has produced.
+If you want to avoid some `scp` or `rsync` commands to the NAS and to your computer, you can find the
+html reports for [R1](data/qc/K2_Illu_R1_fastqc.html) and [R2](data/qc/K2_Illu_R2_fastqc.html)
 
 ```
 ls *fastqc*
@@ -137,42 +148,46 @@ Pay special attention to the per base sequence quality and sequence length distr
 Explanations for the various quality modules can be found [here](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/3%20Analysis%20Modules/).
 Also, have a look at examples of a [good](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/good_sequence_short_fastqc.html) and a [bad](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/bad_sequence_fastqc.html) illumina read set for comparison.
 
-You will note that the reads in your uploaded dataset have fairly poor quality (<20) towards the end. There are also outlier reads that have very poor quality for most of the second half of the reads.
+You will note that the reads in your uploaded dataset have fairly high quality (>20), which drops a bit towards the end. There are also outlier reads that have very poor quality for most of the second half of the reads.
 
 ## Fastp
 Most modern sequencing technologies produce reads that have deteriorating quality towards the 3'-end and some towards the 5'-end as well.
-Incorrectly called bases in both regions negatively impact assembles, mapping, and downstream bioinformatics analyses.
+Incorrectly called bases in both regions can negatively impact assemblies, mapping, and downstream bioinformatics analyses.
 
 Now we will do some trimming of the reads, for keeping only high quality bases and removing potential sequencing adapters.
 
-Fastp is a tool that uses sliding windows along with quality and length thresholds to determine when quality is sufficiently low to trim the 3'-end of reads and also determines when the quality is sufficiently high enough to trim the 5'-end of reads. It will also discard reads based upon a length threshold.
+Fastp is a tool that uses sliding windows along with quality and length thresholds to determine when quality is sufficiently low to trim the 3'-end of reads and also determines when the quality is sufficiently high enough to trim the 5'-end of reads. It can also discard reads based upon a length threshold.
 
 ```bash
 module load bioinfo/fastp/0.20.1
 
 fastp -i K2_Illu_R1.fastq.gz -I K2_Illu_R2.fastq.gz -o K2_Illu_trimmed_R1.fastq.gz -O K2_Illu_trimmed_R2.fastq.gz \
-  --detect_adapter_for_pe --qualified_quality_phred 20 --cut_by_quality5 \
-  --cut_by_quality3 --cut_mean_quality 20 \
+  --detect_adapter_for_pe --qualified_quality_phred 20 --cut_by_quality5 --cut_by_quality3 \
   --html "K2_Illu_fastp_report.html"
 ```
 
 !!! question
+What does `fastp` says about what it has done to the dataset?
 What are the differences before and after the trimming?
 
+!!! tip
+If you want to avoid some `scp` or `rsync` commands to the NAS and to your computer, you can find the
+fastp report [here](data/qc/K2_Illu_fastp_report.html)
 
 ## MultiQC
 
-[MultiQC](http://multiqc.info) is a tool that aggreagtes results from several popular QC bioinformatics software into one html report.
+[MultiQC](http://multiqc.info) is a tool that aggregates results from several popular QC bioinformatics software into one html report.
 
 Let's run MultiQC in our current directory
 
 ```bash
+module load bioinfo/multiqc/1.9
 multiqc .
 ```
 
 You can download the report or view it by clicking on the link below
 
-- [multiqc_report.html](data/fastqc/multiqc_report.html)
+- [multiqc report](data/qc/K2_Illu_multiqc_report.html)
 
 !!! question
 What did the trimming do to the per-base sequence quality, the per sequence quality scores and the sequence length distribution?
