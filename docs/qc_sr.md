@@ -18,7 +18,14 @@ The sequenced organism is a *Klebsiella pneumoniae* bacterium, a potentially fat
 ## Before we start we prepare our computing environment
 
 We will first run the appropriate `srun` command to book the computing cores (cpus) on the cluster.
-The teacher will help you with this command.
+
+```bash
+srun -p short --pty bash -i
+```
+
+You are now on a computing node, with computing core reserved for you. That way, you can run commands interactively.
+If you want to exit the `srun` interactive mode, press CTRL+D or type `exit`
+
 
 ## Downloading the data
 
