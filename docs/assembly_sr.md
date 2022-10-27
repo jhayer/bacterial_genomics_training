@@ -8,12 +8,15 @@
 
 In this practical we will perform the assembly of _Klebsiella pneumoniae_, using the reads that we have trimmed in the previous Quality Control tutorial.
 
-## Before we start we prepare our computing environment
+## Prepare our computing environment
 
 We will first run the appropriate `srun` command to book the computing cores (cpus) on the cluster.
 
+!!! tip
+You need to ask the teacher which partition to use !
+
 ```bash
-srun -p short --cpus-per-task 2 --pty bash -i
+srun -p SELECTED_PARTITION --cpus-per-task 2 --pty bash -i
 ```
 
 You are now on a computing node, with computing 2 cpus reserved for you. That way, you can run commands interactively.
@@ -50,7 +53,10 @@ This will take some time...
 Because we know that this will take quite some time, we better put the command in a SLURM script that we can `sbatch`.
 In that way, we can log out and come back later, the job will keep running.
 
-You can prepare the script spades_assembly.sh, this is an example to help you. Be careful and put the correct name in "your_login" for the paths to be correct.
+You can prepare the script `spades_assembly_K2.sh`, this is an example to help you. Be careful and put the correct name in "your_login" for the paths to be correct.
+
+!!! tip
+You need to ask the teacher which partition to use !
 
 ```
 #!/bin/bash
@@ -60,7 +66,7 @@ You can prepare the script spades_assembly.sh, this is an example to help you. B
 #SBATCH --output=%x.%j.out
 #SBATCH --cpus-per-task 4
 #SBATCH --time=24:00:00
-#SBATCH -p short
+#SBATCH -p SELECTED_PARTITION
 #SBATCH --mail-type=FAIL,END
 #SBATCH --mem-per-cpu=4G
 
@@ -75,7 +81,7 @@ spades.py -1 K2_Illu_trimmed_R1.fastq.gz -2 K2_Illu_trimmed_R2.fastq.gz -o K2_sp
 When you think that your script is ready, you can run the job with SLURM using this command (exit the `srun` if it is still active):
 
 ```bash
-sbatch spades_assembly.sh
+sbatch spades_assembly_K2.sh
 ```
 
 Then check that your script is "Running" by typing:
@@ -91,6 +97,8 @@ First, have a look of the SPAdes output directory.
 
 !!! question
 what are the different files there?
+Check the assembly graph (gfa file) with Bandage => you will need to use the `scp` command from your computer.
+
 
 Let's make a link of the file containing the assembled scaffolds
 
