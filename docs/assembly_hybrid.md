@@ -6,20 +6,6 @@
 
 In this practical we will perform the assembly of _Klebsiella pneumoniae_, using the short and the long reads that we have trimmed in previous tutorials.
 
-## Prepare our computing environment
-
-We will first run the appropriate `srun` command to book the computing cores (cpus) on the cluster.
-
-!!! tip
-You need to ask the teacher which partition to use !
-
-```bash
-srun -p SELECTED_PARTITION --cpus-per-task 2 --pty bash -i
-```
-
-You are now on a computing node, with computing 2 cpus reserved for you. That way, you can run commands interactively.
-
-If you want to exit the `srun` interactive mode, press CTRL+D or type `exit`
 
 ## Getting the data
 
@@ -55,7 +41,7 @@ You need to ask the teacher which partition to use !
 module load bioinfo/racon/1.4.3
 module load bioinfo/unicycler/0.4.4
 
-unicycler -1 K2_Illu_trimmed_R1.fastq.gz -2 K2_Illu_trimmed_R2.fastq.gz --long K2_MinION.nanofilt_trimmed.fastq \
+unicycler -1 K2_Illu_R1_trimmed.fastq -2 K2_Illu_R2_trimmed.fastq --long K2_MinION.nanofilt_trimmed.fastq \
   -o K2_unicycler_assembly -t 4
 
 ```
@@ -97,6 +83,12 @@ head K2_unicycler_scaffolds.fasta
 ## Quality of the Assembly
 
 QUAST is a software evaluating the quality of genome assemblies by computing various metrics, including
+
+First we might need to type the `srun` command to book the resources (the previous step was with `sbatch`):
+
+```bash
+srun -p SELECTED_PARTITION --cpus-per-task 2 --pty bash -i
+```
 
 Run Quast on your assembly (type the srun command first if this is not done already)
 

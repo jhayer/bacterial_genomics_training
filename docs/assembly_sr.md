@@ -45,7 +45,7 @@ We will be using the SPAdes assembler to assemble our bacterium
 ```bash
 module load bioinfo/SPAdes/3.15.3
 
-spades.py -1 K2_Illu_trimmed_R1.fastq.gz -2 K2_Illu_trimmed_R2.fastq.gz -o K2_spades_assembly -t 4 --isolate
+spades.py -1 K2_Illu_R1_trimmed.fastq -2 K2_Illu_R2_trimmed.fastq -o K2_spades_assembly -t 4 --isolate
 ```
 
 This will take some time...
@@ -74,7 +74,7 @@ You need to ask the teacher which partition to use !
 
 module load bioinfo/SPAdes/3.15.3
 
-spades.py -1 K2_Illu_trimmed_R1.fastq.gz -2 K2_Illu_trimmed_R2.fastq.gz -o K2_spades_assembly -t 4 --isolate
+spades.py -1 K2_Illu_R1_trimmed.fastq -2 K2_Illu_R2_trimmed.fastq -o K2_spades_assembly -t 4 --isolate
 
 ```
 

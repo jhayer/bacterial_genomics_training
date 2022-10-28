@@ -171,8 +171,8 @@ Fastp is a tool that uses sliding windows along with quality and length threshol
 ```bash
 module load bioinfo/fastp/0.20.1
 
-fastp -i K2_Illu_R1.fastq.gz -I K2_Illu_R2.fastq.gz -o K2_Illu_trimmed_R1.fastq.gz -O K2_Illu_trimmed_R2.fastq.gz \
-  --detect_adapter_for_pe --qualified_quality_phred 20 --cut_by_quality5 --cut_by_quality3 \
+fastp -i K2_Illu_R1.fastq.gz -I K2_Illu_R2.fastq.gz -o K2_Illu_R1_trimmed.fastq -O K2_Illu_R2_trimmed.fastq \
+  --detect_adapter_for_pe --qualified_quality_phred 20 --cut_front --cut_tail --cut_mean_quality 20  \
   --html "K2_Illu_fastp_report.html"
 ```
 

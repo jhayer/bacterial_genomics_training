@@ -46,11 +46,33 @@ singularity shell path/to/plasmidfiner_container
 
 mkdir K2_plasmidfinder
 
-plasmidfinder.py -i K2_unicycler_contigs.fasta -o K2_plasmidfinder -p /path/to/PF_DB -mp blastn -x
+plasmidfinder.py -i K2_unicycler_scaffolds.fasta -o K2_plasmidfinder -p /path/to/PF_DB -mp blastn -x
 ```
 Once finished, you can exit the container by typing `exit` or press CTRL+D
 
 !!! question
 
-Inspect the output file and comment.
+Inspect the output files within the plasmidfinder output directory and comment.
 How many potential contigs of plasmidic origin were identified ?
+
+
+## Platon
+
+We will use a second tool for detecting sequences of plasmidic origin: [Platon](https://github.com/oschwengers/platon)
+
+```bash
+module load system/singularity/3.6.0
+
+singularity shell path/to/platon_container
+
+platon --db path/to/databases/platon/db/ -t 4 -o K2_unicycler_platon_accu K2_unicycler_scaffolds.fasta
+```
+
+!!! question
+
+Inspect the output files within the Platon output directory and comment.
+Compare with results obtained with PlasmidFinder
+
+!!! question
+
+Try to run the tool on all other Unicycler assemblies by using a loop

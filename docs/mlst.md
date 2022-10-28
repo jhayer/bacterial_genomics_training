@@ -35,7 +35,7 @@ Now we will run the MLST tool:
 module load system/singularity/3.6.0
 singularity run /path/to/mlst_singularity_container ...
 
-mlst K2_unicycler_contigs.fasta > K2_unicycler_contigs_mlst.tsv
+mlst K2_unicycler_scaffolds.fasta > K2_unicycler_scaffolds_mlst.tsv
 ```
 
 Once finished, you can exit the container by typing `exit` or press CTRL+D
@@ -44,4 +44,4 @@ Once finished, you can exit the container by typing `exit` or press CTRL+D
 Check the output file. What is the sequence type of this strain?
 
 !!! question
-If the assembly of the other _Klebsiella pneumoniae_ strains are provided, try to make a loop to run the MLST analysis on all.
+If the (hybrid) assemblies of the other _Klebsiella pneumoniae_ strains are provided, try to make a loop to run the MLST analysis on all.
