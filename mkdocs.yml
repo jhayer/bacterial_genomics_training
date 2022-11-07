@@ -39,6 +39,8 @@ nav:
         - MLST: mlst.md
         - Antimicrobial Resistance Genes: args.md
         - Plasmids: plasmids.md
+        - Annotation: annotation.md
+        - Pangenome: pan_genome.md
 
     - For the teachers:
       - Mkdocs usage: mkdocs_usage.md
