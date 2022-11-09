@@ -41,6 +41,8 @@ nav:
         - Plasmids: plasmids.md
         - Annotation: annotation.md
         - Pangenome: pan_genome.md
+    - Metagenomics:
+      - Viral Metagenomics: metavir.md
 
     - For the teachers:
       - Mkdocs usage: mkdocs_usage.md
