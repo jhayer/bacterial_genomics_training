@@ -1,8 +1,5 @@
 # Multi-Locus Sequence Typing
 
-
-## Practical
-
 In this practical we will perform the genome typing by MLST analysis on the assembly of _Klebsiella pneumoniae_, using the contigs/scaffolds produced by the hybrid assembly in a previous tutorial.
 
 
@@ -11,7 +8,7 @@ In this practical we will perform the genome typing by MLST analysis on the asse
 We will first run the appropriate `srun` command to book the computing cores (cpus) on the cluster.
 
 !!! tip
-You need to ask the teacher which partition to use !
+    You need to ask the teacher which partition to use !
 
 ```bash
 srun -p SELECTED_PARTITION --cpus-per-task 2 --pty bash -i
@@ -25,7 +22,7 @@ If you want to exit the `srun` interactive mode, press CTRL+D or type `exit`
 We should now identify our fasta file containing the contigs from the Unicycler hybrid assembly, produced from long and short reads. This will be the input file for mlst.
 
 ```bash
-cd work
+cd results
 ls -l
 ```
 
@@ -38,10 +35,13 @@ singularity run /path/to/mlst_singularity_container ...
 mlst K2_unicycler_scaffolds.fasta > K2_unicycler_scaffolds_mlst.tsv
 ```
 
+!!! tip
+    Ask the teacher for the MLST container path.
+
 Once finished, you can exit the container by typing `exit` or press CTRL+D
 
 !!! question
-Check the output file. What is the sequence type of this strain?
+    Check the output file. What is the sequence type of this strain?
 
 !!! question
-If the (hybrid) assemblies of the other _Klebsiella pneumoniae_ strains are provided, try to make a loop to run the MLST analysis on all.
+    If the (hybrid) assemblies of the other _Klebsiella pneumoniae_ strains are provided, try to make a loop to run the MLST analysis on all.

@@ -17,7 +17,7 @@ Prokka finds and annotates features (both protein coding regions and RNA genes, 
 We will first run the appropriate `srun` command to book the computing cores (cpus) on the cluster.
 
 !!! tip
-You need to ask the teacher which partition to use !
+    You need to ask the teacher which partition to use !
 
 ```bash
 srun -p SELECTED_PARTITION --cpus-per-task 2 --pty bash -i
@@ -32,7 +32,7 @@ If you want to exit the `srun` interactive mode, press CTRL+D or type `exit`
 Prokka requires assembled contigs. You can prepare you working directory for this annotation tutorial.
 
 ```bash
-cd work
+cd results
 ls -l
 mkdir annotation
 cd annotation
@@ -52,7 +52,7 @@ How many reviewed protein entries are available for *Klebsiella pneumoniae* in S
 For your convenience, we have made the resulting file available. You can copy it by typing the following command:
 
 ```bash
-cp /scratch/genesys_training/files/swissprot_kp_221107.fasta .
+cp /scratch/genesys_training/files/annotation/swissprot_kp_221107.fasta .
 ```
 
 
@@ -77,7 +77,8 @@ Once Prokka has finished, examine each of its output files.
 
 We now want to run Prokka on all our strains, so we can compare the annotations later.
 
-We will prepare a `prokka_kp.sh` script for doing so. Here is an example:
+We will prepare a `prokka_kp.sh` script for doing so, in the scripts directory.
+Here is an example:
 
 
 ```
@@ -106,7 +107,7 @@ prokka --force --genus Klebsiella --species pneumoniae \
 Once your are ready with your script, you can run the loop for `sbatch` it:
 
 ```bash
-for i in K*scaffolds.fasta; do sbatch prokka_kp.sh $i; done
+for i in K*scaffolds.fasta; do sbatch ../scripts/prokka_kp.sh $i; done
 ```
 
 

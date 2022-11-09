@@ -1,9 +1,5 @@
 # Hybrid Genome Assembly using long and short reads data
 
-
-
-## Practical
-
 In this practical we will perform the assembly of _Klebsiella pneumoniae_, using the short and the long reads that we have trimmed in previous tutorials.
 
 
@@ -14,7 +10,7 @@ We have trimmed the raw short-reads and the long reads in the previous steps of 
 Find your 3 fastq(.gz) files containing the trimmed reads for strain K2.
 
 ```bash
-cd work
+cd results
 ls -l
 ```
 
@@ -23,7 +19,7 @@ ls -l
 As you might ghave noticed, assemblies can take some time. For that reason, we will prepare a `unicycler_assembly_K2.sh` script that we will run on the Slurm job scheduler, using the `sbatch` command.
 
 !!! tip
-You need to ask the teacher which partition to use !
+    You need to ask the teacher which partition to use !
 
 ```
 #!/bin/bash
@@ -64,7 +60,7 @@ The result of the assembly is in the directory `K2_unicycler_assembly` under the
 First, have a look of the Unicycler output directory.
 
 !!! question
-what are the different files there?
+    what are the different files there?
 Check the assembly graph (gfa file) with Bandage => you will need to use the `scp` command from your computer.
 
 
@@ -108,13 +104,13 @@ cat K2_unicycler_quast/report.txt
 ```
 
 !!! question
-How well does the assembly total size and coverage correspond to your earlier estimation?
+    How well does the assembly total size and coverage correspond to your earlier estimation?
 
 !!! question
-How many contigs in total did the assembly produce?
+    How many contigs in total did the assembly produce?
 
 !!! question
-Has the assembly improved compared with short-reads only assembly? in term of N50 and L50 for example.
+    Has the assembly improved compared with short-reads only assembly? in term of N50 and L50 for example.
 
 
 Let's now check the completeness in term of essential genes expected with BUSCO
@@ -131,5 +127,5 @@ busco -i K2_unicycler_scaffolds.fasta -o K2_unicycler_busco --mode genome --line
 ```
 
 !!! question
-How many marker genes has `busco` found?
-Was this number improved compared to previous assemblies of short-reads only and long-reads only ?
+    How many marker genes has `busco` found?
+    Was this number improved compared to previous assemblies of short-reads only and long-reads only ?

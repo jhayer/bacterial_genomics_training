@@ -11,7 +11,7 @@ We will use [Roary](https://sanger-pathogens.github.io/Roary/) for performing th
 We will first run the appropriate `srun` command to book the computing cores (cpus) on the cluster.
 
 !!! tip
-You need to ask the teacher which partition to use !
+    You need to ask the teacher which partition to use !
 
 ```bash
 srun -p SELECTED_PARTITION --cpus-per-task 2 --pty bash -i
@@ -26,7 +26,7 @@ If you want to exit the `srun` interactive mode, press CTRL+D or type `exit`
 Prokka requires assembled contigs. You can prepare you working directory for this annotation tutorial.
 
 ```bash
-cd work/annotation
+cd results/annotation
 ls -l
 ```
 Put all the .gff files in the same folder (e.g., `./gff`) for running Roary
@@ -60,12 +60,12 @@ ls -l
 ```
 
 !!! question
-How many genes are found to be in the core genome?
-How many are shared by several strains but not all (shell)?
-How many are found in only one strain (cloud genes)?
+    How many genes are found to be in the core genome?
+    How many are shared by several strains but not all (shell)?
+    How many are found in only one strain (cloud genes)?
 
 
-## Plotting the result
+## Plotting the results
 
 Roary comes with a python script that allows you to generate a few plots to graphically assess your analysis output.
 

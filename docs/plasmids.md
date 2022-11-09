@@ -1,6 +1,4 @@
-# Antimicrobial Resistance Genes and Mutations detection
-
-## Before we start
+# Plasmids detection
 
 We will now search for plasmids features in the assembled scaffolds/contigs to detect which ones could have originated from a plasmid.
 
@@ -16,7 +14,7 @@ Platon depends on a custom database based on MPS, RDS, RefSeq Plasmid database, 
 We will first run the appropriate `srun` command to book the computing cores (cpus) on the cluster.
 
 !!! tip
-You need to ask the teacher which partition to use !
+    You need to ask the teacher which partition to use !
 
 ```bash
 srun -p SELECTED_PARTITION --cpus-per-task 2 --pty bash -i
@@ -28,10 +26,10 @@ If you want to exit the `srun` interactive mode, press CTRL+D or type `exit`
 
 ## Practical
 
-First, you need to identify in your work directory the fasta file corresponding to the unicycler hybrid assembly.
+First, you need to identify in your results directory the fasta file corresponding to the unicycler hybrid assembly.
 
 ```bash
-cd work
+cd results
 ls -l
 ```
 
@@ -48,12 +46,17 @@ mkdir K2_plasmidfinder
 
 plasmidfinder.py -i K2_unicycler_scaffolds.fasta -o K2_plasmidfinder -p /path/to/PF_DB -mp blastn -x
 ```
+
+!!! tip
+    Ask the teacher for the PlasmidFinder database path and for the PlasmidFinder container path.
+
+
 Once finished, you can exit the container by typing `exit` or press CTRL+D
 
-!!! question
 
-Inspect the output files within the plasmidfinder output directory and comment.
-How many potential contigs of plasmidic origin were identified ?
+!!! question
+    Inspect the output files within the plasmidfinder output directory and comment.
+    How many potential contigs of plasmidic origin were identified ?
 
 
 ## Platon
@@ -68,11 +71,12 @@ singularity shell path/to/platon_container
 platon --db path/to/databases/platon/db/ -t 4 -o K2_unicycler_platon_accu K2_unicycler_scaffolds.fasta
 ```
 
-!!! question
-
-Inspect the output files within the Platon output directory and comment.
-Compare with results obtained with PlasmidFinder
+!!! tip
+    Ask the teacher for the Platon database path and for the Platon container path.
 
 !!! question
+    Inspect the output files within the Platon output directory and comment.
+    Compare with results obtained with PlasmidFinder
 
-Try to run the tool on all other Unicycler assemblies by using a loop
+!!! question
+    Try to run the tool on all other Unicycler assemblies by using a loop

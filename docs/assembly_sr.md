@@ -13,7 +13,7 @@ In this practical we will perform the assembly of _Klebsiella pneumoniae_, using
 We will first run the appropriate `srun` command to book the computing cores (cpus) on the cluster.
 
 !!! tip
-You need to ask the teacher which partition to use !
+    You need to ask the teacher which partition to use !
 
 ```bash
 srun -p SELECTED_PARTITION --cpus-per-task 2 --pty bash -i
@@ -30,13 +30,13 @@ We have trimmed the raw short-reads in the previous step of the training, so we 
 Find your 2 fastq files containing the trimmed reads.
 
 ```bash
-cd work
+cd results
 ls -l
 ```
 
 
 !!! question
-How many reads are in the files?
+    How many reads are in the files?
 
 ## De-novo assembly
 
@@ -56,7 +56,7 @@ In that way, we can log out and come back later, the job will keep running.
 You can prepare the script `spades_assembly_K2.sh`, this is an example to help you. Be careful and put the correct name in "your_login" for the paths to be correct.
 
 !!! tip
-You need to ask the teacher which partition to use !
+    You need to ask the teacher which partition to use !
 
 ```
 #!/bin/bash
@@ -96,9 +96,15 @@ The result of the assembly is in the directory `K2_spades_assembly` under the na
 First, have a look of the SPAdes output directory.
 
 !!! question
-what are the different files there?
-Check the assembly graph (gfa file) with Bandage => you will need to use the `scp` command from your computer.
+    what are the different files there?
+    Check the assembly graph (gfa file) with Bandage => you will need to use the `scp` command from your computer.
 
+!!! tip
+    We have made it available, you can get the graph file by typing (when you are on the appropriate node):
+
+```bash
+cp /scratch/genesys_training/files/... .
+```
 
 Let's make a link of the file containing the assembled scaffolds
 
@@ -176,13 +182,13 @@ You can either download it and open it in your own web browser, or we make it av
 
 
 !!! question
-How well does the assembly total consensus size and coverage correspond to your earlier estimation?
+    How well does the assembly total consensus size and coverage correspond to your earlier estimation?
 
 !!! question
-How many contigs in total did the assembly produce?
+    How many contigs in total did the assembly produce?
 
 !!! question
-What is the N50 of the assembly? What does this mean?
+    What is the N50 of the assembly? What does this mean?
 
 ## Assembly Completeness
 
@@ -198,7 +204,7 @@ module load bioinfo/BUSCO/5.2.2
 busco --list-datasets
 ```
 !!! question
-Which dataset should we select?
+    Which dataset should we select?
 
 then we can run `busco` with:
 
@@ -207,7 +213,7 @@ busco -i K2_spades_scaffolds.fasta -o K2_spades_busco --mode genome --lineage_da
 ```
 
 !!! question
-How many marker genes has `busco` found?
+    How many marker genes has `busco` found?
 
 ## Course literature
 

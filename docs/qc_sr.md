@@ -20,7 +20,7 @@ The sequenced organism is a *Klebsiella pneumoniae* bacterium, a potentially fat
 We will first run the appropriate `srun` command to book the computing cores (cpus) on the cluster.
 
 !!! tip
-You need to ask the teacher which partition to use !
+    You need to ask the teacher which partition to use !
 
 ```bash
 srun -p SELECTED_PARTITION --pty bash -i
@@ -85,19 +85,19 @@ chmod u-w *.fastq.gz
 ```
 
 !!! question
-Which difference do you see when you type `ls -s` ?
+    Which difference do you see when you type `ls -s` ?
 
 ## Working Directory
 
-First we make a work directory: a directory where we can play around with a copy of the data without messing with the original
+First we make a working directory (`results`): a directory where we can play around with a copy of the data without messing with the original
 
 ```bash
 cd ..
-mkdir work
-cd work
+mkdir results
+cd results
 ```
 
-Now we make a link of the data in our working directory
+Now we make a link of the data in our results directory
 
 ```bash
 ln -s ../data/*.fastq.gz .
@@ -110,15 +110,15 @@ zless K2_Illu_R1.fastq.gz
 ```
 
 !!! tip
-Use the spacebar to scroll down, and type ‘q’ to exit ‘less’
+    Use the spacebar to scroll down, and type `q` to exit `less`
 
 You can read more on the FASTQ format in the [File Formats](file_formats.md) lesson.
 
 !!! question
-Where does the filename come from?
+    Where does the filename come from?
 
 !!! question
-Why are there R1 and R2 in the file names?
+    Why are there R1 and R2 in the file names?
 
 ## FastQC
 
@@ -149,10 +149,10 @@ For each file, FastQC has produced both a .zip archive containing all the plots,
 Download and open the html files with your favourite web browser.
 
 !!! question
-What should you pay attention to in the FastQC report?
+    What should you pay attention to in the FastQC report?
 
 !!! question
-Which file is of better quality?
+    Which file is of better quality?
 
 Pay special attention to the per base sequence quality and sequence length distribution.
 Explanations for the various quality modules can be found [here](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/3%20Analysis%20Modules/).
@@ -177,12 +177,11 @@ fastp -i K2_Illu_R1.fastq.gz -I K2_Illu_R2.fastq.gz -o K2_Illu_R1_trimmed.fastq 
 ```
 
 !!! question
-What does `fastp` says about what it has done to the dataset?
-What are the differences before and after the trimming?
+    What does `fastp` says about what it has done to the dataset?
+    What are the differences before and after the trimming?
 
 !!! tip
-If you want to avoid some `scp` or `rsync` commands to the NAS and to your computer, you can find the
-fastp report [here](data/qc/K2_Illu_fastp_report.html)
+    If you want to avoid some `scp` or `rsync` commands to the NAS and to your computer, you can find the fastp report [here](data/qc/K2_Illu_fastp_report.html)
 
 ## MultiQC
 
@@ -200,4 +199,4 @@ You can download the report or view it by clicking on the link below
 - [multiqc report](data/qc/K2_Illu_multiqc_report.html)
 
 !!! question
-What did the trimming do to the per-base sequence quality, the per sequence quality scores and the sequence length distribution?
+    What did the trimming do to the per-base sequence quality, the per sequence quality scores and the sequence length distribution?
