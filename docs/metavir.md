@@ -8,16 +8,16 @@ The dolphin had a self-limiting gastroenteritis of suspected viral origin.
 
 ## Getting the Data
 
-First, create an appropriate directory to put the data:
+First, create an appropriate directory to put the data, within your directory for the training:
 ```bash
-mkdir -p ~/dolphin/data
-cd ~/dolphin/data
+mkdir -p dolphin/data
+cd dolphin/data
 ```
 
 You can download them from here:
 ```
-curl -O -J -L https://osf.io/4x6qs/download
-curl -O -J -L https://osf.io/z2xed/download
+wget ftp://ftp.sra.ebi.ac.uk/vol1/run/ERR193/ERR1938563/Dol1_S19_L001_R1_001.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/run/ERR193/ERR1938563/Dol1_S19_L001_R2_001.fastq.gz
 ```
 Alternatively, your instructor will let you know where to get the dataset from.
 
@@ -29,13 +29,25 @@ Dol1_S19_L001_R2_001.fastq.gz
 
 ## Quality Control
 
+We will first run the appropriate `srun` command to book the computing cores (cpus) on the cluster.
+
+!!! tip
+    You need to ask the teacher which partition to use !
+
+```bash
+srun -p SELECTED_PARTITION --pty bash -i
+```
+
+
 We will use FastQC to check the quality of our data, as well as fastp for trimming the bad quality part of the reads.
 If you need a refresher on how and why to check the quality of sequence data, please check the [Quality Control and Trimming](qc) tutorial
 
 ```bash
-mkdir -p ~/dolphin/results
-cd ~/dolphin/results
-ln -s ~/dolphin/data/Dol1* .
+mkdir -p dolphin/results
+cd dolphin/results
+ln -s ../data/Dol1* .
+
+module load bioinfo/FastQC/0.11.9
 fastqc Dol1_*.fastq.gz
 ```
 
@@ -50,6 +62,8 @@ We will removing the adapters and trim by quality.
 
 Now we run fastp our read files
 ```bash
+module load bioinfo/fastp/0.20.1
+
 fastp -i Dol1_S19_L001_R1_001.fastq.gz -o Dol1_trimmed_R1.fastq \
  -I Dol1_S19_L001_R2_001.fastq.gz -O Dol1_trimmed_R2.fastq \
  --detect_adapter_for_pe --length_required 30 \
@@ -72,76 +86,107 @@ bowtie2-build Tursiops_truncatus.turTru1.dna.toplevel.fa Tursiops_truncatus
 
 Because this step takes a while, we have precomputed the index files, you can get them from here:
 
-```
-curl -O -J -L https://osf.io/wfk9t/download
+```bash
+cd dolphin/data
+cp /scratch/genesys_training/files/dolphin/Tursiops_truncatus*.bt2 .
 ```
 
-First we will extract the bowtie indexes of the dolphin genome into our results directory:
-
-```
-tar -xzvf host_genome.tar.gz
-```
 
 Now we are ready to map our sequencing reads on the dolphin genome:
 ```
-bowtie2 -x host_genome/Tursiops_truncatus \
+cd ../results
+
+module load bioinfo/bowtie2/2.3.4.1
+
+bowtie2 -x ../data/Tursiops_truncatus \
 -1 Dol1_trimmed_R1.fastq -2 Dol1_trimmed_R2.fastq \
--S dol_map.sam --un-conc Dol_reads_unmapped.fastq --threads 4
+-S Dol1_map.sam --un-conc Dol1_reads_unmapped.fastq --threads 2
 ```
+
 !!! question
-    How many reads mapped on the dolphin genome?
+    How many reads have mapped on the dolphin genome?
 
-## Taxonomic classification of the trimmed reads
 
-We will use Kaiju for the classification of the produced contigs. As we are mainly interested in detecting the viral sequences in our dataset and we want to reduce the computing time and the memory needed, we will build a viruses-only database.
-
-```bash
-# Kaiju needs to be installed
-cd
-mkdir -p databases/kaijudb
-cd databases/kaijudb
-makeDB.sh -v
-```
-
-Once the database built, Kaiju tells us that we need only 3 files:
-Then other files and directories can be removed
+## Taxonomic classification of the trimmed reads with Kraken2
+We will use Kraken2 for the classification of the unmapped reads.
 
 ```bash
-# Removing un-needed things
-rm -r genomes/
-rm kaiju_db.bwt
-rm kaiju_db.sa
-rm merged.dmp
-rm kaiju_db.faa
+module load bioinfo/kraken2/2.1.1
+
+mkdir Dol1_reads_unmapped_Kn2nt
+
+kraken2 --db /data/projects/banks/kraken2/nt/21-09/nt/ --memory-mapping --threads 4 --output Dol1_reads_unmapped_Kn2nt/Dol1_reads_unmapped_kn2_nt-res.txt --report Dol1_reads_unmapped_Kn2nt/Dol1_reads_unmapped_kn2_nt-report.txt --report-minimizer-data --paired Dol1_reads_unmapped.1.fastq Dol1_reads_unmapped.2.fastq
 ```
 
-We are now ready to run Kaiju on our trimmed reads
+This command can take very long, therefore we recommend you to prepare a more generic script for running Kraken, with the possibility to run on paired reads or on a single contigs fasta file.
+
+Follow the example below to prepare a `kraken2_nt.sh` script in your `scripts` directory.
+
+```
+#!/bin/bash
+## SLURM CONFIG ##
+
+#SBATCH --job-name=kn2nt
+#SBATCH --output=%x.%j.out
+#SBATCH -c 4
+#SBATCH --time=96:00:00
+#SBATCH -p SELECTED_PARTITION
+#SBATCH --mail-type=FAIL,END
+#SBATCH --mem-per-cpu=4G
+
+###
+
+HELP="
+USAGE: kraken2_nt.sh reads_file1.fastq [reads_file2.fastq]
+"
+# If we didn't get any arguments, print help and exit
+if [[ $# < 1 ]]
+then
+    echo "$HELP"
+    exit 0
+fi
+
+# If we have a help flag anywhere among the arguments
+for arg in $@
+do
+    if [ "$arg" == "-h" ] || [ "$arg" == "--help" ]
+    then
+        echo "$HELP"
+    fi
+done
+
+##### KRAKEN VARIABLES ####
+PATH_DB="/data/projects/banks/kraken2/nt/21-09/nt/"
+QUERY_FILE=$1
+PREFIX=$(echo $1 | cut -f1 -d.)
+DATA_DIR=`pwd`
+OUT_DIR="${DATA_DIR}/${PREFIX}_Kn2nt"
+mkdir $OUT_DIR
+
+module load bioinfo/kraken2/2.1.1
+
+if [[ $# > 1 ]]
+then
+# Taxonomic classification with Kraken2 on nt db for paired end reads
+
+    QUERY_FILE2=$2
+    kraken2 --db ${PATH_DB} --memory-mapping --threads 4 --output ${OUT_DIR}/${PREFIX}_kn2_nt-res.txt --report ${OUT_DIR}/${PREFIX}_kn2_nt-report.txt --report-minimizer-data --paired ${QUERY_FILE} ${QUERY_FILE2}
+else
+# one single input file (e.g: scaffolds.fasta)
+
+    kraken2 --db ${PATH_DB} --memory-mapping --threads 4 --output ${OUT_DIR}/${PREFIX}_kn2_nt-res.txt --report ${OUT_DIR}/${PREFIX}_kn2_nt-report.txt --report-minimizer-data ${QUERY_FILE}
+fi
+
+```
+
+Once the script is ready, you can run it on the reads as follow:
 
 ```bash
-cd dolphin/results
-kaiju -t ~/databases/kaijudb/nodes.dmp -f ~/databases/kaijudb/kaiju_db.fmi \
- -i Dol_reads_unmapped.1.fastq -j Dol_reads_unmapped.2.fastq \
- -o Dol1_reads_kaiju.out
+sbatch ../../scripts/kraken2_nt.sh Dol1_reads_unmapped.1.fastq Dol1_reads_unmapped.2.fastq
 ```
 
-In order to visualise the results, we will produce a Krona chart.
-This step requires to have KronaTools installed:
-```
-conda install -c bioconda krona
-```
-
-```bash
-kaiju2krona -t ~/databases/kaijudb/nodes.dmp -n ~/databases/kaijudb/names.dmp \
--i Dol1_reads_kaiju.out -o Dol1_reads_kaiju.krona -u
-
-ktImportText -o Dol1_reads_kaiju.krona.html Dol1_reads_kaiju.krona
-
-```
-
-!!! note
-    If we were interested in bacteria and had a databases containing them, we could also use the command kaijuReport to get a text summary. Unfortunately, it does not provide taxonomic levels for viruses.
-
-Then we copy the produced html file locally to visualise in our web browser.
+!!! question
+    Inspect the 2 output files from Kraken and comment.
 
 
 ## Assembly
@@ -149,7 +194,8 @@ Then we copy the produced html file locally to visualise in our web browser.
 Megahit will be used for the *de novo* assembly of the metagenome.
 
 ```
-megahit -1 Dol_reads_unmapped.1.fastq -2 Dol_reads_unmapped.2.fastq -o assembly
+module load bioinfo/MEGAHIT/1.2.9
+megahit -1 Dol1_reads_unmapped.1.fastq -2 Dol1_reads_unmapped.2.fastq -o Dol1_assembly
 ```
 
 The resulting assembly can be found under `assembly/final.contigs.fa`.
@@ -157,22 +203,22 @@ The resulting assembly can be found under `assembly/final.contigs.fa`.
 !!! question
     How many contigs does this assembly contain? Is there any long contig?
 
+!!! tip
+    Use the command `grep` with the symbol `>` to visualise the fasta sequences headers and count them
+
+
+
+
 ## Taxonomic classification of contigs
 
-We will use Kaiju again with the same viruses-only database for the classification of the produced contigs.
+We will use Kraken again with the same nt database for the classification of the produced contigs.
 
 ```bash
-cd assembly
+# in the results directory, link the contigs file
+ln -s Dol1_assembly/final.contigs.fa Dol1_assembly_contigs.fa
 
-kaiju -t ~/databases/kaijudb/nodes.dmp -f ~/databases/kaijudb/kaiju_db.fmi \
- -i final.contigs.fa -o Dol1_contigs_kaiju.out
-```
-Then we produce the Krona chart:
-```bash
-kaiju2krona -t ~/databases/kaijudb/nodes.dmp -n ~/databases/kaijudb/names.dmp \
- -i Dol1_contigs_kaiju.out -o Dol1_contigs_kaiju.krona -u
-
-ktImportText -o Dol1_contigs_kaiju.krona.html Dol1_contigs_kaiju.krona
+# then run you previously made Kraken script using sbatch
+sbatch ../../scripts/kraken2_nt.sh Dol1_assembly_contigs.fa
 ```
 
 !!! question
@@ -196,7 +242,7 @@ Let's go for a little practice of your Unix skills!
 Once we have this file, we want to sort all the sequences headers by the sequence length (len=X):
 
 ```bash
-cat final.contigs.fa | grep ">" | sed s/len=// | sort -k4n | tail -1
+cat Dol1_assembly_contigs.fa | grep ">" | sed s/len=// | sort -k4n | tail -1
 ```
 
 !!! question
@@ -205,7 +251,7 @@ cat final.contigs.fa | grep ">" | sed s/len=// | sort -k4n | tail -1
 Now that you have identified the sequence header or id of the longest contig, you want to save it to a fasta file.
 
 ```bash
-grep -i '>k141_XXX' -A 1 final.contigs.fa > longest_contig.fasta
+grep -i '>k141_XXX' -A 1 Dol1_assembly_contigs.fa > longest_contig.fasta
 ```
 
 !!! note
@@ -214,14 +260,24 @@ grep -i '>k141_XXX' -A 1 final.contigs.fa > longest_contig.fasta
     Test with -A 2 (without the redirection to longest_contig.fasta) to see what happens.
 
 
-Now that you have identified the longest contig, you will check in Kaiju results what was the taxon assigned to this contig.
+Now that you have identified the longest contig, you will check in Kraken results what was the taxon assigned to this contig.
 
-Have a look at the file **Dol1_contigs_kaiju.out**. It is structured in 3 columns:
-classification status (C/U), sequence id, assigned TaxID.
+Have a look at the file **Dol1_assembly_contigs_kn2_nt-res.txt**. It is structured in 5 columns:
+classification status (C/U), sequence id, assigned TaxID, sequence length, k-mers classification.
+For more info about Kraken2, check the [manual](https://github.com/DerrickWood/kraken2/wiki/Manual)
 
 !!! question
     Identify the TaxID of the longest contig and search on NCBI Taxonomy database to which species it corresponds to.
 
+!!! tip
+    Note that there is an easy way to extract all the sequences classified at a certain Taxon (using the NCBI TaxID), including or not the sequences classified at "children taxa" of this. A useful Python script is available through [KrakenTools](https://github.com/jenniferlu717/KrakenTools) with a few other tools around Kraken.
+    If you have the time, do not hesitate to ask the teacher to help you installing and using it.
+
+## Pavian
+
+We will use Pavian for visualising Kraken2 results for reads and contigs.
+The teacher will guide you for this step.
+===> Pavian link Here==> add the Kraken reports in the files....
 
 
 ## Genome annotation of the contig of interest

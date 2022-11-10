@@ -28,11 +28,11 @@ nav:
         - The Unix system: unix.md
         - Project organisation: project_organisation.md
         - iTrop computing cluster: itrop.md
-    - HTS data analyses:
+    - Sequencing data analyses:
         - File formats: file_formats.md
-        - Long reads Basecalling: basecalling.md
         - Short Reads Quality Control and Trimming: qc_sr.md
         - Short reads assembly: assembly_sr.md
+        - Long reads: long_reads.md
         - Hybrid assembly: assembly_hybrid.md
         - Mapping and variant calling: variant_calling.md
     - Bacterial Genomics and AMR:
