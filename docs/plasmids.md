@@ -78,8 +78,8 @@ platon --db path/to/databases/platon/db/ -t 4 -o K2_unicycler_platon_accu K2_uni
     Inspect the output files within the Platon output directory and comment.
     Compare with results obtained with PlasmidFinder
 
-!!! question
-    Try to run the tool on all other Unicycler assemblies by using a loop
-
 !!! note
     You can put the Platon json file in [Json Editor online](https://jsoneditoronline.org) for visualising the hits
+
+!!! question
+    Try to run the tool on all other Unicycler assemblies by using a loop
