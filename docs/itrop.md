@@ -6,13 +6,12 @@ The IRD Bioinformatic Cluster is composed of a pool of machines reachable throug
 
 The cluster is composed of:
 
-- 1 master 
+- 1 master
 - 3 nas servers for a 127To data storage
 - 32 nodes servers : 8 nodes with 12 cores, 2 nodes with 16 cores, 4 nodes with 20 cores, 11 with 24 cores, 1 with 40 cores with RAM from 48Go to 1To and a GPU serveur with 8 RTX 2080 graphical cards.
 
-Here is the architecture:
+[Here](https://github.com/lokman89/bioinformatics_tutorials/blob/temp/schema_cluster_150221.png) is the architecture
 
-![This is an image.](https://github.com/lokman89/bioinformatics_tutorials/blob/temp/schema_cluster_150221.png)
 
 ## Connect to the cluster via *ssh*
 
@@ -31,7 +30,7 @@ Your password has to be changed at your first connection.
 
 #### Connect to a node in interactive mode and launch commands:
 
-To connect to a node in interactive mode for X minutes , use the following command :
+To connect to a node in interactive mode for X minutes, use the following command:
 
 `srun -p short --time=X:00 --pty bash -i`
 
@@ -58,12 +57,14 @@ The list of nodes in the cluster:
 
 *highmem* partition: jobs with more memory needs
 
+*highmemplus* partition: jobs with more memory needs
+
 *supermem* partition: jobs with much more memory needs
 
 *gpu* partition: need of analyses on GPU cores
 
 
-#### Choose **node5** (*highmem* partition):
+#### Choose **node5** (*highmemplus* partition):
 `srun -p highmemplus --nodelist=node5 --pty bash -i`
 
 ## Data location
@@ -179,3 +180,7 @@ with `script.sh` the name of the script to use.
 
 #### Check job status
 `sacct -S 2020-11-2 -u galal --format=jobid,jobname,user,submit,start,end,state,NNodes,CPUTimeRAW,comment,Timelimit,TotalCPU,CPUTime,MaxDiskWrite,NodeList`
+
+For checking all the jobs of a certain user:
+
+`squeue -u username`

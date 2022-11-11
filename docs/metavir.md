@@ -269,15 +269,28 @@ For more info about Kraken2, check the [manual](https://github.com/DerrickWood/k
 !!! question
     Identify the TaxID of the longest contig and search on NCBI Taxonomy database to which species it corresponds to.
 
-!!! tip
+!!! note
     Note that there is an easy way to extract all the sequences classified at a certain Taxon (using the NCBI TaxID), including or not the sequences classified at "children taxa" of this. A useful Python script is available through [KrakenTools](https://github.com/jenniferlu717/KrakenTools) with a few other tools around Kraken.
     If you have the time, do not hesitate to ask the teacher to help you installing and using it.
 
 ## Pavian
 
 We will use Pavian for visualising Kraken2 results for reads and contigs.
+First, copy all the Kraken reports on your computer.
+Go to Rstudio and follow the instructions of [Pavian](https://github.com/fbreitwieser/pavian) for running the app.
+
 The teacher will guide you for this step.
-===> Pavian link Here==> add the Kraken reports in the files....
+
+```R
+if (!require(remotes)) { install.packages("remotes") }
+remotes::install_github("fbreitwieser/pavian")
+```
+
+To run Pavian from R, type:
+
+```R
+pavian::runApp(port=5000)
+```
 
 
 ## Genome annotation of the contig of interest
@@ -289,6 +302,8 @@ belonging to adenoviruses. Save the file as `adenovirus.faa` and copy it in
 your results directory.
 
 ```bash
+module load bioinfo/prokka/1.14.6
+
 prokka --outdir annotation --kingdom Viruses \
 --proteins adenovirus.faa longest_contig.fasta
 ```

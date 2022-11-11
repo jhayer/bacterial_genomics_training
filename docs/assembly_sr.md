@@ -2,7 +2,8 @@
 
 ## Lecture
 
-<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vRKVI_pHGubDWeRPaAO7c9g55DzHMO5Lgd7g7AZXvjB77wAAb-wED82lXgV5P7GPF02k-21YMx8ObaX/embed?start=false&loop=false&delayms=3000" frameborder="0" width="480" height="389" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQ-Oj4CHFeUS6pTU1VpgQNyiA10D3KUxGBrlMFbnLy7G4nA2W2RtQV85KO_CbcA9R7jATZ6XKc4vAcL/embed?start=false&loop=false&delayms=3000" frameborder="0" width="480" height="389" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+
 
 ## Practical
 
