@@ -80,3 +80,6 @@ platon --db path/to/databases/platon/db/ -t 4 -o K2_unicycler_platon_accu K2_uni
 
 !!! question
     Try to run the tool on all other Unicycler assemblies by using a loop
+
+!!! note
+    You can put the Platon json file in [Json Editor online](https://jsoneditoronline.org) for visualising the hits
