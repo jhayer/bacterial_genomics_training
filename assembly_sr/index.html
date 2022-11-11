@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		
+		
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+		<meta name="author" content="Juliette Hayer and Lokman Galal">
+		<link rel="canonical" href="https://jhayer.github.io/bacterial_genomics_training/assembly_sr/">
+		<link rel="shortcut icon" href="../img/favicon.ico">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+		<title>Short reads assembly - Bioinformatics Tutorials for Bacterial Genomics</title>
+		<link href="../bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+		<link href="../css/font-awesome-5.12.2-all.min.css" rel="stylesheet">
+		<link href="../css/base.css" rel="stylesheet">
+		<link rel="stylesheet" href="../css/highlight-github.css">
+		<script src="../bootstrap/dist/js/bootstrap.min.js"></script>
+		<script src="../js/highlight.pack.js"></script>
+		
+		<script>
+			var base_url = '..';
+			var home_url = '../usage';
+			var is_outer_page = false;
+			
+			var pageToc = [
+				{title: "De-novo Genome Assembly", url: "#_top", children: [
+						
+				{title: "Lecture", url: "#_top", children: [
+				]},
+				{title: "Practical", url: "#practical", children: [
+				]},
+				{title: "Prepare our computing environment", url: "#prepare-our-computing-environment", children: [
+				]},
+				{title: "Getting the data", url: "#getting-the-data", children: [
+				]},
+				{title: "De-novo assembly", url: "#de-novo-assembly", children: [
+				]},
+				{title: "Quality of the Assembly", url: "#quality-of-the-assembly", children: [
+				]},
+				{title: "Assembly Completeness", url: "#assembly-completeness", children: [
+				]},
+				{title: "Course literature", url: "#course-literature", children: [
+				]},
+				]},
+			];
+
+		</script>
+		<script src="../js/base.js"></script> 
+	</head>
+
+	<body class="inner-page">
+		
+
+		<div class="container-fluid wm-page-content">
+			<a name="_top" aria-hidden="true"></a>
+			
+
+
+
+
+
+
+<div class="row pt-2 pb-4">
+	<div class="col-sm text-center text-sm-left">
+		<a href="../qc_sr/" class="btn btn-sm btn-outline-dark">
+			<i class="fa fa-chevron-left" aria-hidden="true"></i>
+			Previous
+		</a>
+		<a href="../qc_sr/" class="btn btn-sm btn-link">
+			Short Reads Quality Control and Trimming
+		</a>
+	</div>
+	
+
+	
+	<div class="col-sm text-center text-sm-right">
+		<a href="../long_reads/" class="btn btn-sm btn-link">
+			Long reads
+		</a>
+		<a href="../long_reads/" class="btn btn-sm btn-outline-dark">
+			Next
+			<i class="fa fa-chevron-right" aria-hidden="true"></i>
+		</a>
+	</div>
+	
+</div>
+
+			
+
+			<h1 id="de-novo-genome-assembly">De-novo Genome Assembly<a class="headerlink" href="#de-novo-genome-assembly" title="Permanent link">#</a></h1>
+<h2 id="lecture">Lecture<a class="headerlink" href="#lecture" title="Permanent link">#</a></h2>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQ-Oj4CHFeUS6pTU1VpgQNyiA10D3KUxGBrlMFbnLy7G4nA2W2RtQV85KO_CbcA9R7jATZ6XKc4vAcL/embed?start=false&loop=false&delayms=3000" frameborder="0" width="480" height="389" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+
+<h2 id="practical">Practical<a class="headerlink" href="#practical" title="Permanent link">#</a></h2>
+<p>In this practical we will perform the assembly of <em>Klebsiella pneumoniae</em>, using the reads that we have trimmed in the previous Quality Control tutorial.</p>
+<h2 id="prepare-our-computing-environment">Prepare our computing environment<a class="headerlink" href="#prepare-our-computing-environment" title="Permanent link">#</a></h2>
+<p>We will first run the appropriate <code>srun</code> command to book the computing cores (cpus) on the cluster.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You need to ask the teacher which partition to use !</p>
+</div>
+<pre><code class="language-bash">srun -p SELECTED_PARTITION --cpus-per-task 2 --pty bash -i
+</code></pre>
+<p>You are now on a computing node, with computing 2 cpus reserved for you. That way, you can run commands interactively.</p>
+<p>If you want to exit the <code>srun</code> interactive mode, press CTRL+D or type <code>exit</code></p>
+<h2 id="getting-the-data">Getting the data<a class="headerlink" href="#getting-the-data" title="Permanent link">#</a></h2>
+<p>We have trimmed the raw short-reads in the previous step of the training, so we will now assemble them into longer sequences called contigs.</p>
+<p>Find your 2 fastq files containing the trimmed reads.</p>
+<pre><code class="language-bash">cd results
+ls -l
+</code></pre>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>How many reads are in the files?</p>
+</div>
+<h2 id="de-novo-assembly">De-novo assembly<a class="headerlink" href="#de-novo-assembly" title="Permanent link">#</a></h2>
+<p>We will be using the SPAdes assembler to assemble our bacterium</p>
+<pre><code class="language-bash">module load bioinfo/SPAdes/3.15.3
+
+spades.py -1 K2_Illu_R1_trimmed.fastq -2 K2_Illu_R2_trimmed.fastq -o K2_spades_assembly -t 4 --isolate
+</code></pre>
+<p>This will take some time...</p>
+<p>Because we know that this will take quite some time, we better put the command in a SLURM script that we can <code>sbatch</code>.
+In that way, we can log out and come back later, the job will keep running.</p>
+<p>You can prepare the script <code>spades_assembly_K2.sh</code>, this is an example to help you. Be careful and put the correct name in "your_login" for the paths to be correct.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You need to ask the teacher which partition to use !</p>
+</div>
+<pre><code>#!/bin/bash
+## SLURM CONFIG ##
+
+#SBATCH --job-name=spades
+#SBATCH --output=%x.%j.out
+#SBATCH --cpus-per-task 4
+#SBATCH --time=24:00:00
+#SBATCH -p SELECTED_PARTITION
+#SBATCH --mail-type=FAIL,END
+#SBATCH --mem-per-cpu=4G
+
+##
+
+module load bioinfo/SPAdes/3.15.3
+
+spades.py -1 K2_Illu_R1_trimmed.fastq -2 K2_Illu_R2_trimmed.fastq -o K2_spades_assembly -t 4 --isolate
+
+</code></pre>
+<p>When you think that your script is ready, you can run the job with SLURM using this command (exit the <code>srun</code> if it is still active):</p>
+<pre><code class="language-bash">sbatch spades_assembly_K2.sh
+</code></pre>
+<p>Then check that your script is "Running" by typing:</p>
+<pre><code class="language-bash">squeue
+
+## to see only your jobs, select the user
+squeue -u your_login
+</code></pre>
+<p>The result of the assembly is in the directory <code>K2_spades_assembly</code> under the name <code>scaffolds.fasta</code>
+First, have a look of the SPAdes output directory.</p>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>what are the different files there?
+Check the assembly graph (gfa file) with Bandage =&gt; you will need to use the <code>scp</code> command from your computer.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>We have made it available, you can get the graph file by typing (when you are on the appropriate node):</p>
+</div>
+<pre><code class="language-bash">cp /scratch/genesys_training/files/... .
+</code></pre>
+<p>Let's make a link of the file containing the assembled scaffolds</p>
+<pre><code class="language-bash">ln -s K2_spades_assembly/scaffolds.fasta K2_spades_scaffolds.fasta
+</code></pre>
+<p>and look at it</p>
+<pre><code class="language-bash">head K2_spades_scaffolds.fasta
+</code></pre>
+<h2 id="quality-of-the-assembly">Quality of the Assembly<a class="headerlink" href="#quality-of-the-assembly" title="Permanent link">#</a></h2>
+<p>QUAST is a software evaluating the quality of genome assemblies by computing various metrics, including</p>
+<p>Run Quast on your assembly (type the srun command first if this is not done already)</p>
+<pre><code class="language-bash">module load bioinfo/quast/5.0.2
+module load bioinfo/bedtools/2.30.0
+module load bioinfo/minimap2/2.24
+
+quast.py -o K2_spades_quast -t 2 --conserved-genes-finding --gene-finding \
+  --pe1 K2_Illu_trimmed_R1.fastq.gz --pe2 K2_Illu_trimmed_R2.fastq.gz K2_spades_scaffolds.fasta
+</code></pre>
+<p>and take a look at the text report</p>
+<pre><code class="language-bash">cat K2_spades_quast/report.txt
+</code></pre>
+<p>You should see something like</p>
+<pre><code>Assembly                    K2_spades_scaffolds
+# contigs (&gt;= 0 bp)         3392               
+# contigs (&gt;= 1000 bp)      447                
+# contigs (&gt;= 5000 bp)      46                 
+# contigs (&gt;= 10000 bp)     40                 
+# contigs (&gt;= 25000 bp)     24                 
+# contigs (&gt;= 50000 bp)     19                 
+Total length (&gt;= 0 bp)      7774823            
+Total length (&gt;= 1000 bp)   6044278            
+Total length (&gt;= 5000 bp)   5470941            
+Total length (&gt;= 10000 bp)  5428782            
+Total length (&gt;= 25000 bp)  5151491            
+Total length (&gt;= 50000 bp)  4973703            
+# contigs                   2408               
+Largest contig              815843             
+Total length                7335510            
+GC (%)                      57.04              
+N50                         252444             
+N75                         3008               
+L50                         9                  
+L75                         55                 
+# total reads               1129033            
+# left                      559060             
+# right                     559060             
+Mapped (%)                  99.46              
+Properly paired (%)         98.12              
+Avg. coverage depth         35                 
+Coverage &gt;= 1x (%)          100.0              
+# N's per 100 kbp           0.00      
+</code></pre>
+<p>which is a summary stats about our assembly.
+Additionally, the file <code>K2_spades_quast/report.html</code></p>
+<p>You can either download it and open it in your own web browser, or we make it available for your convenience:</p>
+<ul>
+<li><a href="data/assembly/quast_report.html">K2_spades_quast_report.html</a></li>
+</ul>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>How well does the assembly total consensus size and coverage correspond to your earlier estimation?</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>How many contigs in total did the assembly produce?</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>What is the N50 of the assembly? What does this mean?</p>
+</div>
+<h2 id="assembly-completeness">Assembly Completeness<a class="headerlink" href="#assembly-completeness" title="Permanent link">#</a></h2>
+<p>Although quast output a range of metric to assess how contiguous our assembly is, having a long N50 does not guarantee a good assembly: it could be riddled by misassemblies!</p>
+<p>We will run <code>busco</code> to try to find marker genes in our assembly. Marker genes are conserved across a range of species and finding intact conserved genes in our assembly would be a good indication of its quality</p>
+<p>First we need to check if the bacterial datasets are available for <code>busco</code> and which ones are available</p>
+<pre><code class="language-bash">module load bioinfo/BUSCO/5.2.2
+
+busco --list-datasets
+</code></pre>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>Which dataset should we select?</p>
+</div>
+<p>then we can run <code>busco</code> with:</p>
+<pre><code class="language-bash">busco -i K2_spades_scaffolds.fasta -o K2_spades_busco --mode genome --lineage_dataset enterobacterales_odb10
+</code></pre>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>How many marker genes has <code>busco</code> found?</p>
+</div>
+<h2 id="course-literature">Course literature<a class="headerlink" href="#course-literature" title="Permanent link">#</a></h2>
+<p>Course literature for today is:</p>
+<ul>
+<li>Next-Generation Sequence Assembly: Four Stages of Data Processing and Computational Challenges: <a href="https://doi.org/10.1371/journal.pcbi.1003345">https://doi.org/10.1371/journal.pcbi.1003345</a></li>
+</ul>
+
+			<br>
+			
+
+
+
+
+
+
+<div class="row pt-2 pb-4">
+	<div class="col-sm text-center text-sm-left">
+		<a href="../qc_sr/" class="btn btn-sm btn-outline-dark">
+			<i class="fa fa-chevron-left" aria-hidden="true"></i>
+			Previous
+		</a>
+		<a href="../qc_sr/" class="btn btn-sm btn-link">
+			Short Reads Quality Control and Trimming
+		</a>
+	</div>
+	
+
+	
+	<div class="col-sm text-center text-sm-right">
+		<a href="../long_reads/" class="btn btn-sm btn-link">
+			Long reads
+		</a>
+		<a href="../long_reads/" class="btn btn-sm btn-outline-dark">
+			Next
+			<i class="fa fa-chevron-right" aria-hidden="true"></i>
+		</a>
+	</div>
+	
+</div>
+
+			<br>
+		</div>
+
+		<footer class="container-fluid wm-page-content text-center small">
+			<p>
+			<a href="https://github.com/jhayer/bacterial_genomics_training/edit/master/docs/assembly_sr.md" target="_blank">Edit on jhayer/bacterial_genomics_training</a>
+			</p>
+			<details>
+				<summary>
+					Documentation built with <a href="http://www.mkdocs.org/" target="_blank">MkDocs</a> using  <a href="https://github.com/Siphalor/mkdocs-custommill" target="_blank">CustomMill</a>.
+				</summary>
+				<h6 class="mt-2">Additional Licenses</h6>
+				<ul><li>
+						CustomMill is based on the <a href="https://github.com/gristlabs/mkdocs-windmill" target="_blank">Windmill</a> theme by Grist Labs, licensed under the <a href="https://github.com/gristlabs/mkdocs-windmill/blob/master/LICENSE" target="_blank">MIT License</a>
+					</li>
+					<li>
+						CustomMill includes <a href="https://getbootstrap.com" target="_blank">Bootstrap</a> version 5.1.3. This is available under the <a href="https://github.com/twbs/bootstrap/blob/master/LICENSE" target="_blank">MIT License</a>.
+					</li>
+					<li>
+						Syntax highlighting is implemented via <a href="https://highlightjs.org" target="_blank">highlight.js</a> licensed under the BSD 3-Clause License and the included github styling made by Vasily Polovnyov.
+					</li>
+					<li>
+						Icons on this site are from <a href="https://fontawesome.com/" target="_blank">Font Awesome</a> which is licensed under the <a href="https://fontawesome.com/license/free" target="_blank">Font Awesome Free License</a>.
+					</li></ul>
+				<p>Built at 2022-11-11 16:51:21 UTC</p>
+			</details>
+		</footer>
+
+		
+	</body>
+</html>

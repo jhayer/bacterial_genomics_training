@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		
+		
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+		<meta name="author" content="Juliette Hayer and Lokman Galal">
+		<link rel="canonical" href="https://jhayer.github.io/bacterial_genomics_training/pan_genome/">
+		<link rel="shortcut icon" href="../img/favicon.ico">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+		<title>Pangenome - Bioinformatics Tutorials for Bacterial Genomics</title>
+		<link href="../bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+		<link href="../css/font-awesome-5.12.2-all.min.css" rel="stylesheet">
+		<link href="../css/base.css" rel="stylesheet">
+		<link rel="stylesheet" href="../css/highlight-github.css">
+		<script src="../bootstrap/dist/js/bootstrap.min.js"></script>
+		<script src="../js/highlight.pack.js"></script>
+		
+		<script>
+			var base_url = '..';
+			var home_url = '../usage';
+			var is_outer_page = false;
+			
+			var pageToc = [
+				{title: "Pan-Genome Analysis", url: "#_top", children: [
+						
+				{title: "Prepare our computing environment", url: "#_top", children: [
+				]},
+				{title: "Input data", url: "#input-data", children: [
+				]},
+				{title: "Pan-genome analysis", url: "#pan-genome-analysis_1", children: [
+				]},
+				{title: "Plotting the results", url: "#plotting-the-results", children: [
+				]},
+				]},
+			];
+
+		</script>
+		<script src="../js/base.js"></script> 
+	</head>
+
+	<body class="inner-page">
+		
+
+		<div class="container-fluid wm-page-content">
+			<a name="_top" aria-hidden="true"></a>
+			
+
+
+
+
+
+
+<div class="row pt-2 pb-4">
+	<div class="col-sm text-center text-sm-left">
+		<a href="../annotation/" class="btn btn-sm btn-outline-dark">
+			<i class="fa fa-chevron-left" aria-hidden="true"></i>
+			Previous
+		</a>
+		<a href="../annotation/" class="btn btn-sm btn-link">
+			Annotation
+		</a>
+	</div>
+	
+
+	
+	<div class="col-sm text-center text-sm-right">
+		<a href="../metavir/" class="btn btn-sm btn-link">
+			Viral Metagenomics
+		</a>
+		<a href="../metavir/" class="btn btn-sm btn-outline-dark">
+			Next
+			<i class="fa fa-chevron-right" aria-hidden="true"></i>
+		</a>
+	</div>
+	
+</div>
+
+			
+
+			<h1 id="pan-genome-analysis">Pan-Genome Analysis<a class="headerlink" href="#pan-genome-analysis" title="Permanent link">#</a></h1>
+<p>In this tutorial we will learn how to determine a pan-genome from a collection of isolate genomes.
+The pangenome analysis will be based on the genome annotations made in the previous step, that we obtained thanks to Prokka.
+The presence/absence of genes will be used by Roary for determining genes belonging to the core genome, and the genes being accessory among the pangenome (not present in all strains).</p>
+<p>We will use <a href="https://sanger-pathogens.github.io/Roary/">Roary</a> for performing this pangenome analysis.</p>
+<h2 id="prepare-our-computing-environment">Prepare our computing environment<a class="headerlink" href="#prepare-our-computing-environment" title="Permanent link">#</a></h2>
+<p>We will first run the appropriate <code>srun</code> command to book the computing cores (cpus) on the cluster.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You need to ask the teacher which partition to use !</p>
+</div>
+<pre><code class="language-bash">srun -p SELECTED_PARTITION --cpus-per-task 2 --pty bash -i
+</code></pre>
+<p>You are now on a computing node, with computing 2 cpus reserved for you. That way, you can run commands interactively.</p>
+<p>If you want to exit the <code>srun</code> interactive mode, press CTRL+D or type <code>exit</code></p>
+<h2 id="input-data">Input data<a class="headerlink" href="#input-data" title="Permanent link">#</a></h2>
+<p>Prokka requires assembled contigs. You can prepare you working directory for this annotation tutorial.</p>
+<pre><code class="language-bash">cd results/annotation
+ls -l
+</code></pre>
+<p>Put all the .gff files in the same folder (e.g., <code>./gff</code>) for running Roary</p>
+<pre><code class="language-bash">mkdir gff
+cp K*prokka/*.gff gff/
+</code></pre>
+<h2 id="pan-genome-analysis_1">Pan-genome analysis<a class="headerlink" href="#pan-genome-analysis_1" title="Permanent link">#</a></h2>
+<p>We will now run Roary from the gff directory</p>
+<pre><code class="language-bash">module load bioinfo/roary/3.12.0
+
+cd gff
+roary -p 4 -o 5_Kp_roary_clust -f 5_Kp_roary -e -n -r -v  *.gff
+</code></pre>
+<p>This can take 15-20 min.
+Roary will get all the coding sequences, convert them into protein, and create pre-clusters. Then, using BLASTP and MCL, Roary will create clusters, and check for paralogs. Finally, Roary will take every isolate and order them by presence/absence of orthologs. The summary output is present in the <code>summary_statistics.txt</code> file.</p>
+<p>Additionally, Roary produces a <code>gene_presence_absence.csv</code> file that can be opened in any spreadsheet software to manually explore the results. In this file, you will find information such as gene name and gene annotation, and, of course, whether a gene is present in a genome or not.</p>
+<p>Inspect the results files produced</p>
+<pre><code class="language-bash">cd 5_Kp_roary
+ls -l
+</code></pre>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>How many genes are found to be in the core genome?
+How many are shared by several strains but not all (shell)?
+How many are found in only one strain (cloud genes)?</p>
+</div>
+<h2 id="plotting-the-results">Plotting the results<a class="headerlink" href="#plotting-the-results" title="Permanent link">#</a></h2>
+<p>Roary comes with a python script that allows you to generate a few plots to graphically assess your analysis output.</p>
+<p>First, we need to generate a tree file from the alignment generated by Roary:</p>
+<pre><code class="language-bash">FastTree -nt -gtr core_gene_alignment.aln &gt; my_tree.newick
+</code></pre>
+<p>Then we can plot the Roary results with <code>roary_plots.py</code>, a community contributed python script to visualise roary results:</p>
+<pre><code>wget https://raw.githubusercontent.com/sanger-pathogens/Roary/master/contrib/roary_plots/roary_plots.py
+module load system/python/3.8.12
+pip install seaborn
+python roary_plots.py
+python roary_plots.py my_tree.newick gene_presence_absence.csv
+</code></pre>
+<p>then look at the 3 <code>/png</code> files that have been generated</p>
+
+			<br>
+			
+
+
+
+
+
+
+<div class="row pt-2 pb-4">
+	<div class="col-sm text-center text-sm-left">
+		<a href="../annotation/" class="btn btn-sm btn-outline-dark">
+			<i class="fa fa-chevron-left" aria-hidden="true"></i>
+			Previous
+		</a>
+		<a href="../annotation/" class="btn btn-sm btn-link">
+			Annotation
+		</a>
+	</div>
+	
+
+	
+	<div class="col-sm text-center text-sm-right">
+		<a href="../metavir/" class="btn btn-sm btn-link">
+			Viral Metagenomics
+		</a>
+		<a href="../metavir/" class="btn btn-sm btn-outline-dark">
+			Next
+			<i class="fa fa-chevron-right" aria-hidden="true"></i>
+		</a>
+	</div>
+	
+</div>
+
+			<br>
+		</div>
+
+		<footer class="container-fluid wm-page-content text-center small">
+			<p>
+			<a href="https://github.com/jhayer/bacterial_genomics_training/edit/master/docs/pan_genome.md" target="_blank">Edit on jhayer/bacterial_genomics_training</a>
+			</p>
+			<details>
+				<summary>
+					Documentation built with <a href="http://www.mkdocs.org/" target="_blank">MkDocs</a> using  <a href="https://github.com/Siphalor/mkdocs-custommill" target="_blank">CustomMill</a>.
+				</summary>
+				<h6 class="mt-2">Additional Licenses</h6>
+				<ul><li>
+						CustomMill is based on the <a href="https://github.com/gristlabs/mkdocs-windmill" target="_blank">Windmill</a> theme by Grist Labs, licensed under the <a href="https://github.com/gristlabs/mkdocs-windmill/blob/master/LICENSE" target="_blank">MIT License</a>
+					</li>
+					<li>
+						CustomMill includes <a href="https://getbootstrap.com" target="_blank">Bootstrap</a> version 5.1.3. This is available under the <a href="https://github.com/twbs/bootstrap/blob/master/LICENSE" target="_blank">MIT License</a>.
+					</li>
+					<li>
+						Syntax highlighting is implemented via <a href="https://highlightjs.org" target="_blank">highlight.js</a> licensed under the BSD 3-Clause License and the included github styling made by Vasily Polovnyov.
+					</li>
+					<li>
+						Icons on this site are from <a href="https://fontawesome.com/" target="_blank">Font Awesome</a> which is licensed under the <a href="https://fontawesome.com/license/free" target="_blank">Font Awesome Free License</a>.
+					</li></ul>
+				<p>Built at 2022-11-11 16:51:21 UTC</p>
+			</details>
+		</footer>
+
+		
+	</body>
+</html>

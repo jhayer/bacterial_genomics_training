@@ -8,7 +8,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		
 		<meta name="author" content="Juliette Hayer and Lokman Galal">
-		<link rel="canonical" href="https://jhayer.github.io/bacterial_genomics_training/qc/">
+		<link rel="canonical" href="https://jhayer.github.io/bacterial_genomics_training/qc_sr/">
 		<link rel="shortcut icon" href="../img/favicon.ico">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
 		<title>Short Reads Quality Control and Trimming - Bioinformatics Tutorials for Bacterial Genomics</title>
@@ -31,17 +31,15 @@
 				]},
 				{title: "Practical", url: "#practical", children: [
 				]},
+				{title: "Prepare our computing environment", url: "#prepare-our-computing-environment", children: [
+				]},
 				{title: "Downloading the data", url: "#downloading-the-data", children: [
 				]},
 				{title: "Working Directory", url: "#working-directory", children: [
 				]},
 				{title: "FastQC", url: "#fastqc", children: [
 				]},
-				{title: "Scythe", url: "#scythe", children: [
-				]},
-				{title: "Sickle", url: "#sickle", children: [
-				]},
-				{title: "FastQC again", url: "#fastqc-again", children: [
+				{title: "Fastp", url: "#fastp", children: [
 				]},
 				{title: "MultiQC", url: "#multiqc", children: [
 				]},
@@ -66,22 +64,22 @@
 
 <div class="row pt-2 pb-4">
 	<div class="col-sm text-center text-sm-left">
-		<a href="../basecalling/" class="btn btn-sm btn-outline-dark">
+		<a href="../file_formats/" class="btn btn-sm btn-outline-dark">
 			<i class="fa fa-chevron-left" aria-hidden="true"></i>
 			Previous
 		</a>
-		<a href="../basecalling/" class="btn btn-sm btn-link">
-			Long reads Basecalling
+		<a href="../file_formats/" class="btn btn-sm btn-link">
+			File formats
 		</a>
 	</div>
 	
 
 	
 	<div class="col-sm text-center text-sm-right">
-		<a href="../mkdocs_usage/" class="btn btn-sm btn-link">
-			Mkdocs usage
+		<a href="../assembly_sr/" class="btn btn-sm btn-link">
+			Short reads assembly
 		</a>
-		<a href="../mkdocs_usage/" class="btn btn-sm btn-outline-dark">
+		<a href="../assembly_sr/" class="btn btn-sm btn-outline-dark">
 			Next
 			<i class="fa fa-chevron-right" aria-hidden="true"></i>
 		</a>
@@ -97,157 +95,144 @@
 <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vR7ZN5Gc-3q5DR8CWQgyHhjUIc-6uKJnB48lDVMB7tWrt4gpZFipbJRVWfaqdxSw9n_WnMfXoFMZXds/embed?start=false&loop=false&delayms=3000" frameborder="0" width="480" height="389" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
 
 <h2 id="practical">Practical<a class="headerlink" href="#practical" title="Permanent link">#</a></h2>
-<p>In this practical you will learn to import, view and check the quality of raw high thoughput sequencing sequencing data.</p>
-<p>The first dataset you will be working with is from an Illumina MiSeq dataset.
-The sequenced organism is an enterohaemorrhagic E. coli (EHEC) of the serotype O157, a potentially fatal gastrointestinal pathogen.
-The sequenced bacterium was part of an outbreak investigation in the St. Louis area, USA in 2011.
-The sequencing was done as paired-end 2x150bp.</p>
-<h2 id="downloading-the-data">Downloading the data<a class="headerlink" href="#downloading-the-data" title="Permanent link">#</a></h2>
-<p>The raw data were deposited at the European Nucleotide Archive, under the accession number SRR957824.
-You could go to the ENA <a href="http://www.ebi.ac.uk/ena">website</a> and search for the run with the accession SRR957824.</p>
-<p>However these files contain about 3 million reads and are therefore quite big.
-We are only going to use a subset of the original dataset for this tutorial.</p>
-<p>First create a <code>data/</code> directory in your home folder</p>
-<pre><code class="language-bash">mkdir ~/data
+<p>In this practical you will learn to import, view and check the quality of raw high throughput sequencing data.</p>
+<p>The first dataset you will be working with is from an Illumina dataset.
+The sequenced organism is a <em>Klebsiella pneumoniae</em> bacterium, a potentially fatal pathogen.
+...
+<a href="https://www.mdpi.com/2076-2607/9/12/2560/htm">Here</a> is the article of the study.</p>
+<h2 id="prepare-our-computing-environment">Prepare our computing environment<a class="headerlink" href="#prepare-our-computing-environment" title="Permanent link">#</a></h2>
+<p>We will first run the appropriate <code>srun</code> command to book the computing cores (cpus) on the cluster.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You need to ask the teacher which partition to use !</p>
+</div>
+<pre><code class="language-bash">srun -p SELECTED_PARTITION --pty bash -i
 </code></pre>
-<p>now let's download the subset</p>
-<pre><code class="language-bash">cd ~/data
-curl -O -J -L https://osf.io/shqpv/download
-curl -O -J -L https://osf.io/9m3ch/download
+<p>You are now on a computing node, with computing core reserved for you. That way, you can run commands interactively.
+If you want to exit the <code>srun</code> interactive mode, press CTRL+D or type <code>exit</code></p>
+<h2 id="downloading-the-data">Downloading the data<a class="headerlink" href="#downloading-the-data" title="Permanent link">#</a></h2>
+<p>The raw data were deposited at the European Nucleotide Archive, under the accession number PRJEB45084.
+You could go to the ENA <a href="http://www.ebi.ac.uk/ena">website</a> and search for the run with the accession PRJEB45084.</p>
+<p>First create a <code>data/</code> directory in your home folder for the training</p>
+<pre><code class="language-bash">mkdir data
+</code></pre>
+<p>now let's download the reads data:</p>
+<pre><code class="language-bash">cd data
+wget ftp://ftp.sra.ebi.ac.uk/vol1/run/ERR595/ERR5951443/K2_Illu_R1.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/run/ERR595/ERR5951443/K2_Illu_R2.fastq.gz
 </code></pre>
 <p>Let’s make sure we downloaded all of our data using md5sum.</p>
-<pre><code class="language-bash">md5sum SRR957824_500K_R1.fastq.gz SRR957824_500K_R2.fastq.gz
+<pre><code class="language-bash">md5sum K2_Illu_R1.fastq.gz K2_Illu_R2.fastq.gz
 </code></pre>
 <p>you should see this</p>
-<pre><code>1e8cf249e3217a5a0bcc0d8a654585fb  SRR957824_500K_R1.fastq.gz
-70c726a31f05f856fe942d727613adb7  SRR957824_500K_R2.fastq.gz
+<pre><code>e4f7a5de95bbb5d5d58c142afa9bc838  K2_Illu_R1.fastq.gz
+a5659b9b4646d15622a1a7a5c41fb22c  K2_Illu_R2.fastq.gz
 </code></pre>
 <p>and now look at the file names and their size</p>
 <pre><code class="language-bash">ls -l
 </code></pre>
-<pre><code>total 97M
--rw-r--r-- 1 hadrien 48M Nov 19 18:44 SRR957824_500K_R1.fastq.gz
--rw-r--r-- 1 hadrien 50M Nov 19 18:53 SRR957824_500K_R2.fastq.gz
+<pre><code>total 172M
+-rw-r--r-- 1 hayer 83M Oct 25 16:00 K2_Illu_R1.fastq.gz
+-rw-r--r-- 1 hayer 89M Oct 25 16:00 K2_Illu_R2.fastq.gz
 </code></pre>
-<p>There are 500 000 paired-end reads taken randomly from the original data</p>
 <p>One last thing before we get to the quality control: those files are writeable.
 By default, UNIX makes things writeable by the file owner.
 This poses an issue with creating typos or errors in raw data.
 We fix that before going further</p>
-<pre><code class="language-bash">chmod u-w *
+<pre><code class="language-bash">chmod u-w *.fastq.gz
 </code></pre>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>Which difference do you see when you type <code>ls -s</code> ?</p>
+</div>
 <h2 id="working-directory">Working Directory<a class="headerlink" href="#working-directory" title="Permanent link">#</a></h2>
-<p>First we make a work directory: a directory where we can play around with a copy of the data without messing with the original</p>
-<pre><code class="language-bash">mkdir ~/work
-cd ~/work
+<p>First we make a working directory (<code>results</code>): a directory where we can play around with a copy of the data without messing with the original</p>
+<pre><code class="language-bash">cd ..
+mkdir results
+cd results
 </code></pre>
-<p>Now we make a link of the data in our working directory</p>
-<pre><code class="language-bash">ln -s ~/data/* .
+<p>Now we make a link of the data in our results directory</p>
+<pre><code class="language-bash">ln -s ../data/*.fastq.gz .
 </code></pre>
 <p>The files that we've downloaded are FASTQ files. Take a look at one of them with</p>
-<pre><code class="language-bash">zless SRR957824_500K_R1.fastq.gz
+<pre><code class="language-bash">zless K2_Illu_R1.fastq.gz
 </code></pre>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
+<p>Use the spacebar to scroll down, and type <code>q</code> to exit <code>less</code></p>
 </div>
-<p>Use the spacebar to scroll down, and type ‘q’ to exit ‘less’</p>
 <p>You can read more on the FASTQ format in the <a href="../file_formats/">File Formats</a> lesson.</p>
 <div class="admonition question">
 <p class="admonition-title">Question</p>
-</div>
 <p>Where does the filename come from?</p>
+</div>
 <div class="admonition question">
 <p class="admonition-title">Question</p>
+<p>Why are there R1 and R2 in the file names?</p>
 </div>
-<p>Why are there 1 and 2 in the file names?</p>
 <h2 id="fastqc">FastQC<a class="headerlink" href="#fastqc" title="Permanent link">#</a></h2>
 <p>To check the quality of the sequence data we will use a tool called FastQC.</p>
 <p>FastQC has a graphical interface and can be downloaded and run on a Windows or Linux computer without installation.
 It is available <a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/">here</a>.</p>
 <p>However, FastQC is also available as a command line utility on the training server you are using.
 To run FastQC on our two files</p>
-<pre><code class="language-bash">fastqc SRR957824_500K_R1.fastq.gz SRR957824_500K_R2.fastq.gz
+<pre><code class="language-bash">module load bioinfo/FastQC/0.11.9
+
+fastqc K2_Illu_R1.fastq.gz K2_Illu_R2.fastq.gz
 </code></pre>
-<p>and look what FastQC has produced</p>
+<p>and look what FastQC has produced.
+If you want to avoid some <code>scp</code> or <code>rsync</code> commands to the NAS and to your computer, you can find the
+html reports for <a href="data/qc/K2_Illu_R1_fastqc.html">R1</a> and <a href="data/qc/K2_Illu_R2_fastqc.html">R2</a></p>
 <pre><code>ls *fastqc*
 </code></pre>
 <p>For each file, FastQC has produced both a .zip archive containing all the plots, and a html report.</p>
 <p>Download and open the html files with your favourite web browser.</p>
-<p>Alternatively you can look a these copies of them:</p>
-<ul>
-<li><a href="data/fastqc/SRR957824_500K_R1_fastqc.html">SRR957824_500K_R1_fastqc.html</a></li>
-<li><a href="data/fastqc/SRR957824_500K_R2_fastqc.html">SRR957824_500K_R2_fastqc.html</a></li>
-</ul>
 <div class="admonition question">
 <p class="admonition-title">Question</p>
-</div>
 <p>What should you pay attention to in the FastQC report?</p>
+</div>
 <div class="admonition question">
 <p class="admonition-title">Question</p>
-</div>
 <p>Which file is of better quality?</p>
+</div>
 <p>Pay special attention to the per base sequence quality and sequence length distribution.
 Explanations for the various quality modules can be found <a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/3%20Analysis%20Modules/">here</a>.
 Also, have a look at examples of a <a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/good_sequence_short_fastqc.html">good</a> and a <a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/bad_sequence_fastqc.html">bad</a> illumina read set for comparison.</p>
-<p>You will note that the reads in your uploaded dataset have fairly poor quality (&lt;20) towards the end. There are also outlier reads that have very poor quality for most of the second half of the reads.</p>
-<h2 id="scythe">Scythe<a class="headerlink" href="#scythe" title="Permanent link">#</a></h2>
-<p>Now we'll do some trimming!</p>
-<p>Scythe uses a Naive Bayesian approach to classify contaminant substrings in sequence reads.
-It considers quality information, which can make it robust in picking out 3'-end adapters, which often include poor quality bases.</p>
-<p>The first thing we need is the adapters to trim off</p>
-<pre><code class="language-bash">curl -O -J -L https://osf.io/v24pt/download
-</code></pre>
-<p>Now we run scythe on both our read files</p>
-<pre><code class="language-bash">scythe -a adapters.fasta SRR957824_500K_R1.fastq.gz -o SRR957824_adapt_R1.fastq 
-scythe -a adapters.fasta SRR957824_500K_R2.fastq.gz -o SRR957824_adapt_R2.fastq 
+<p>You will note that the reads in your uploaded dataset have fairly high quality (&gt;20), which drops a bit towards the end. There are also outlier reads that have very poor quality for most of the second half of the reads.</p>
+<h2 id="fastp">Fastp<a class="headerlink" href="#fastp" title="Permanent link">#</a></h2>
+<p>Most modern sequencing technologies produce reads that have deteriorating quality towards the 3'-end and some towards the 5'-end as well.
+Incorrectly called bases in both regions can negatively impact assemblies, mapping, and downstream bioinformatics analyses.</p>
+<p>Now we will do some trimming of the reads, for keeping only high quality bases and removing potential sequencing adapters.</p>
+<p>Fastp is a tool that uses sliding windows along with quality and length thresholds to determine when quality is sufficiently low to trim the 3'-end of reads and also determines when the quality is sufficiently high enough to trim the 5'-end of reads. It can also discard reads based upon a length threshold.</p>
+<pre><code class="language-bash">module load bioinfo/fastp/0.20.1
+
+fastp -i K2_Illu_R1.fastq.gz -I K2_Illu_R2.fastq.gz -o K2_Illu_R1_trimmed.fastq -O K2_Illu_R2_trimmed.fastq \
+  --detect_adapter_for_pe --qualified_quality_phred 20 --cut_front --cut_tail --cut_mean_quality 20  \
+  --html &quot;K2_Illu_fastp_report.html&quot;
 </code></pre>
 <div class="admonition question">
 <p class="admonition-title">Question</p>
+<p>What does <code>fastp</code> says about what it has done to the dataset?
+What are the differences before and after the trimming?</p>
 </div>
-<p>What adapters do you use?</p>
-<h2 id="sickle">Sickle<a class="headerlink" href="#sickle" title="Permanent link">#</a></h2>
-<p>Most modern sequencing technologies produce reads that have deteriorating quality towards the 3'-end and some towards the 5'-end as well.
-Incorrectly called bases in both regions negatively impact assembles, mapping, and downstream bioinformatics analyses.</p>
-<p>We will trim each read individually down to the good quality part to keep the bad part from interfering with downstream applications.</p>
-<p>To do so, we will use sickle. Sickle is a tool that uses sliding windows along with quality and length thresholds to determine when quality is sufficiently low to trim the 3'-end of reads and also determines when the quality is sufficiently high enough to trim the 5'-end of reads. It will also discard reads based upon a length threshold.</p>
-<p>To run sickle</p>
-<pre><code class="language-bash">sickle pe -f SRR957824_adapt_R1.fastq -r SRR957824_adapt_R2.fastq \
-    -t sanger -o SRR957824_trimmed_R1.fastq -p SRR957824_trimmed_R2.fastq \
-    -s /dev/null -q 25
-</code></pre>
-<p>which should output something like</p>
-<pre><code>PE forward file: SRR957824_trimmed_R1.fastq
-PE reverse file: SRR957824_trimmed_R2.fastq
-
-Total input FastQ records: 1000000 (500000 pairs)
-
-FastQ paired records kept: 834570 (417285 pairs)
-FastQ single records kept: 13263 (from PE1: 11094, from PE2: 2169)
-FastQ paired records discarded: 138904 (69452 pairs)
-FastQ single records discarded: 13263 (from PE1: 2169, from PE2: 11094)
-</code></pre>
-<h2 id="fastqc-again">FastQC again<a class="headerlink" href="#fastqc-again" title="Permanent link">#</a></h2>
-<p>Run fastqc again on the filtered reads</p>
-<pre><code class="language-bash">fastqc SRR957824_trimmed_R1.fastq SRR957824_trimmed_R2.fastq
-</code></pre>
-<p>and look at the reports</p>
-<ul>
-<li><a href="data/fastqc/SRR957824_trimmed_R1_fastqc.html">SRR957824_trimmed_R1_fastqc.html</a></li>
-<li><a href="data/fastqc/SRR957824_trimmed_R2_fastqc.html">SRR957824_trimmed_R2_fastqc.html</a></li>
-</ul>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>If you want to avoid some <code>scp</code> or <code>rsync</code> commands to the NAS and to your computer, you can find the fastp report <a href="data/qc/K2_Illu_fastp_report.html">here</a></p>
+</div>
 <h2 id="multiqc">MultiQC<a class="headerlink" href="#multiqc" title="Permanent link">#</a></h2>
-<p><a href="http://multiqc.info">MultiQC</a> is a tool that aggreagtes results from several popular QC bioinformatics software into one html report.</p>
+<p><a href="http://multiqc.info">MultiQC</a> is a tool that aggregates results from several popular QC bioinformatics software into one html report.</p>
 <p>Let's run MultiQC in our current directory</p>
-<pre><code class="language-bash">multiqc .
+<pre><code class="language-bash">module load bioinfo/multiqc/1.9
+multiqc .
 </code></pre>
 <p>You can download the report or view it by clicking on the link below</p>
 <ul>
-<li><a href="data/fastqc/multiqc_report.html">multiqc_report.html</a></li>
+<li><a href="data/qc/K2_Illu_multiqc_report.html">multiqc report</a></li>
 </ul>
 <div class="admonition question">
 <p class="admonition-title">Question</p>
-</div>
 <p>What did the trimming do to the per-base sequence quality, the per sequence quality scores and the sequence length distribution?</p>
+</div>
 
 			<br>
 			
@@ -259,22 +244,22 @@ FastQ single records discarded: 13263 (from PE1: 2169, from PE2: 11094)
 
 <div class="row pt-2 pb-4">
 	<div class="col-sm text-center text-sm-left">
-		<a href="../basecalling/" class="btn btn-sm btn-outline-dark">
+		<a href="../file_formats/" class="btn btn-sm btn-outline-dark">
 			<i class="fa fa-chevron-left" aria-hidden="true"></i>
 			Previous
 		</a>
-		<a href="../basecalling/" class="btn btn-sm btn-link">
-			Long reads Basecalling
+		<a href="../file_formats/" class="btn btn-sm btn-link">
+			File formats
 		</a>
 	</div>
 	
 
 	
 	<div class="col-sm text-center text-sm-right">
-		<a href="../mkdocs_usage/" class="btn btn-sm btn-link">
-			Mkdocs usage
+		<a href="../assembly_sr/" class="btn btn-sm btn-link">
+			Short reads assembly
 		</a>
-		<a href="../mkdocs_usage/" class="btn btn-sm btn-outline-dark">
+		<a href="../assembly_sr/" class="btn btn-sm btn-outline-dark">
 			Next
 			<i class="fa fa-chevron-right" aria-hidden="true"></i>
 		</a>
@@ -287,7 +272,7 @@ FastQ single records discarded: 13263 (from PE1: 2169, from PE2: 11094)
 
 		<footer class="container-fluid wm-page-content text-center small">
 			<p>
-			<a href="https://github.com/jhayer/bacterial_genomics_training/edit/master/docs/qc.md" target="_blank">Edit on jhayer/bacterial_genomics_training</a>
+			<a href="https://github.com/jhayer/bacterial_genomics_training/edit/master/docs/qc_sr.md" target="_blank">Edit on jhayer/bacterial_genomics_training</a>
 			</p>
 			<details>
 				<summary>
@@ -306,7 +291,7 @@ FastQ single records discarded: 13263 (from PE1: 2169, from PE2: 11094)
 					<li>
 						Icons on this site are from <a href="https://fontawesome.com/" target="_blank">Font Awesome</a> which is licensed under the <a href="https://fontawesome.com/license/free" target="_blank">Font Awesome Free License</a>.
 					</li></ul>
-				<p>Built at 2022-10-17 13:22:35 UTC</p>
+				<p>Built at 2022-11-11 16:51:21 UTC</p>
 			</details>
 		</footer>
 

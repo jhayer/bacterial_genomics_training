@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		
+		
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+		<meta name="author" content="Juliette Hayer and Lokman Galal">
+		<link rel="canonical" href="https://jhayer.github.io/bacterial_genomics_training/long_reads/">
+		<link rel="shortcut icon" href="../img/favicon.ico">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+		<title>Long reads - Bioinformatics Tutorials for Bacterial Genomics</title>
+		<link href="../bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+		<link href="../css/font-awesome-5.12.2-all.min.css" rel="stylesheet">
+		<link href="../css/base.css" rel="stylesheet">
+		<link rel="stylesheet" href="../css/highlight-github.css">
+		<script src="../bootstrap/dist/js/bootstrap.min.js"></script>
+		<script src="../js/highlight.pack.js"></script>
+		
+		<script>
+			var base_url = '..';
+			var home_url = '../usage';
+			var is_outer_page = false;
+			
+			var pageToc = [
+				{title: "DE NOVO GENOME ASSEMBLY USING LONG READS", url: "#_top", children: [
+						
+				{title: "Basecalling", url: "#_top", children: [
+				]},
+				{title: "Quality assessment", url: "#quality-assessment", children: [
+				]},
+				{title: "Read filtering, trimming and adapter removal", url: "#read-filtering-trimming-and-adapter-removal", children: [
+				]},
+				{title: "Genome assembly", url: "#genome-assembly", children: [
+				]},
+				]},
+			];
+
+		</script>
+		<script src="../js/base.js"></script> 
+	</head>
+
+	<body class="inner-page">
+		
+
+		<div class="container-fluid wm-page-content">
+			<a name="_top" aria-hidden="true"></a>
+			
+
+
+
+
+
+
+<div class="row pt-2 pb-4">
+	<div class="col-sm text-center text-sm-left">
+		<a href="../assembly_sr/" class="btn btn-sm btn-outline-dark">
+			<i class="fa fa-chevron-left" aria-hidden="true"></i>
+			Previous
+		</a>
+		<a href="../assembly_sr/" class="btn btn-sm btn-link">
+			Short reads assembly
+		</a>
+	</div>
+	
+
+	
+	<div class="col-sm text-center text-sm-right">
+		<a href="../assembly_hybrid/" class="btn btn-sm btn-link">
+			Hybrid assembly
+		</a>
+		<a href="../assembly_hybrid/" class="btn btn-sm btn-outline-dark">
+			Next
+			<i class="fa fa-chevron-right" aria-hidden="true"></i>
+		</a>
+	</div>
+	
+</div>
+
+			
+
+			<h1 id="de-novo-genome-assembly-using-long-reads">DE NOVO GENOME ASSEMBLY USING LONG READS<a class="headerlink" href="#de-novo-genome-assembly-using-long-reads" title="Permanent link">#</a></h1>
+<p>&nbsp;</p>
+<h2 id="basecalling">Basecalling<a class="headerlink" href="#basecalling" title="Permanent link">#</a></h2>
+<p>Base calling is the process of translating the electronic raw signal (fast5 format) of the sequencer into bases (fastq format).</p>
+<ul>
+<li>
+<p><strong>environment</strong>: the i-Trop computing cluster.</p>
+</li>
+<li>
+<p><strong>software</strong>: guppy</p>
+</li>
+<li>
+<p><strong>input data</strong>: download from <a href="https://202.153.211.253:5001/sharing/8tQZNApgN">here</a> =&gt; directory fast5 (course_data/practicals/basecalling_practical/fast5/)</p>
+</li>
+<li>
+<p><strong><a href="https://timkahlke.github.io/LongRead_tutorials/BS_G.html">link to the tutorial</a></strong>
+&nbsp;</p>
+</li>
+</ul>
+<h2 id="quality-assessment">Quality assessment<a class="headerlink" href="#quality-assessment" title="Permanent link">#</a></h2>
+<p>Verify the quality of reads within nanopore fastq files.</p>
+<ul>
+<li>
+<p><strong>environment</strong>: the i-Trop computing cluster.</p>
+</li>
+<li>
+<p><strong>software</strong>: fastqc</p>
+</li>
+<li>
+<p><strong>input data</strong>: output of Basecalling (previous step)</p>
+</li>
+<li>
+<p><strong><a href="https://timkahlke.github.io/LongRead_tutorials/QC_F.html">link to the tutorial</a></strong>
+&nbsp;</p>
+</li>
+</ul>
+<h2 id="read-filtering-trimming-and-adapter-removal">Read filtering, trimming and adapter removal<a class="headerlink" href="#read-filtering-trimming-and-adapter-removal" title="Permanent link">#</a></h2>
+<p>Verify the quality of reads within nanopore fastq files.</p>
+<ul>
+<li>
+<p><strong>environment</strong>: the i-Trop computing cluster.</p>
+</li>
+<li>
+<p><strong>software</strong>: porechop; nanofilt</p>
+</li>
+<li>
+<p><strong>input data</strong>: output of Basecalling passing quality control</p>
+</li>
+<li>
+<p><strong><a href="https://timkahlke.github.io/LongRead_tutorials/FTR.html">link to the tutorial</a></strong>
+&nbsp;</p>
+</li>
+</ul>
+<h2 id="genome-assembly">Genome assembly<a class="headerlink" href="#genome-assembly" title="Permanent link">#</a></h2>
+<p>"De novo" assembly of long reads</p>
+<ul>
+<li>
+<p><strong>environment</strong>: the i-Trop computing cluster.</p>
+</li>
+<li>
+<p><strong>software</strong>: flye</p>
+</li>
+<li>
+<p><strong>input data</strong>: Klebsiella pneumoniae nanopore sequences <a href="https://www.ebi.ac.uk/ena/browser/view/PRJEB45084">link to input files</a></p>
+</li>
+<li>
+<p><strong><a href="https://timkahlke.github.io/LongRead_tutorials/ASS_F.html">link to the tutorial</a></strong>
+&nbsp;</p>
+</li>
+</ul>
+
+			<br>
+			
+
+
+
+
+
+
+<div class="row pt-2 pb-4">
+	<div class="col-sm text-center text-sm-left">
+		<a href="../assembly_sr/" class="btn btn-sm btn-outline-dark">
+			<i class="fa fa-chevron-left" aria-hidden="true"></i>
+			Previous
+		</a>
+		<a href="../assembly_sr/" class="btn btn-sm btn-link">
+			Short reads assembly
+		</a>
+	</div>
+	
+
+	
+	<div class="col-sm text-center text-sm-right">
+		<a href="../assembly_hybrid/" class="btn btn-sm btn-link">
+			Hybrid assembly
+		</a>
+		<a href="../assembly_hybrid/" class="btn btn-sm btn-outline-dark">
+			Next
+			<i class="fa fa-chevron-right" aria-hidden="true"></i>
+		</a>
+	</div>
+	
+</div>
+
+			<br>
+		</div>
+
+		<footer class="container-fluid wm-page-content text-center small">
+			<p>
+			<a href="https://github.com/jhayer/bacterial_genomics_training/edit/master/docs/long_reads.md" target="_blank">Edit on jhayer/bacterial_genomics_training</a>
+			</p>
+			<details>
+				<summary>
+					Documentation built with <a href="http://www.mkdocs.org/" target="_blank">MkDocs</a> using  <a href="https://github.com/Siphalor/mkdocs-custommill" target="_blank">CustomMill</a>.
+				</summary>
+				<h6 class="mt-2">Additional Licenses</h6>
+				<ul><li>
+						CustomMill is based on the <a href="https://github.com/gristlabs/mkdocs-windmill" target="_blank">Windmill</a> theme by Grist Labs, licensed under the <a href="https://github.com/gristlabs/mkdocs-windmill/blob/master/LICENSE" target="_blank">MIT License</a>
+					</li>
+					<li>
+						CustomMill includes <a href="https://getbootstrap.com" target="_blank">Bootstrap</a> version 5.1.3. This is available under the <a href="https://github.com/twbs/bootstrap/blob/master/LICENSE" target="_blank">MIT License</a>.
+					</li>
+					<li>
+						Syntax highlighting is implemented via <a href="https://highlightjs.org" target="_blank">highlight.js</a> licensed under the BSD 3-Clause License and the included github styling made by Vasily Polovnyov.
+					</li>
+					<li>
+						Icons on this site are from <a href="https://fontawesome.com/" target="_blank">Font Awesome</a> which is licensed under the <a href="https://fontawesome.com/license/free" target="_blank">Font Awesome Free License</a>.
+					</li></ul>
+				<p>Built at 2022-11-11 16:51:21 UTC</p>
+			</details>
+		</footer>
+
+		
+	</body>
+</html>

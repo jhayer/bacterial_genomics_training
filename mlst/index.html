@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		
+		
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+		<meta name="author" content="Juliette Hayer and Lokman Galal">
+		<link rel="canonical" href="https://jhayer.github.io/bacterial_genomics_training/mlst/">
+		<link rel="shortcut icon" href="../img/favicon.ico">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+		<title>MLST - Bioinformatics Tutorials for Bacterial Genomics</title>
+		<link href="../bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+		<link href="../css/font-awesome-5.12.2-all.min.css" rel="stylesheet">
+		<link href="../css/base.css" rel="stylesheet">
+		<link rel="stylesheet" href="../css/highlight-github.css">
+		<script src="../bootstrap/dist/js/bootstrap.min.js"></script>
+		<script src="../js/highlight.pack.js"></script>
+		
+		<script>
+			var base_url = '..';
+			var home_url = '../usage';
+			var is_outer_page = false;
+			
+			var pageToc = [
+				{title: "Multi-Locus Sequence Typing", url: "#_top", children: [
+						
+				{title: "Prepare our computing environment", url: "#_top", children: [
+				]},
+				{title: "Run the MLST program", url: "#run-the-mlst-program", children: [
+				]},
+				]},
+			];
+
+		</script>
+		<script src="../js/base.js"></script> 
+	</head>
+
+	<body class="inner-page">
+		
+
+		<div class="container-fluid wm-page-content">
+			<a name="_top" aria-hidden="true"></a>
+			
+
+
+
+
+
+
+<div class="row pt-2 pb-4">
+	<div class="col-sm text-center text-sm-left">
+		<a href="../variant_calling/" class="btn btn-sm btn-outline-dark">
+			<i class="fa fa-chevron-left" aria-hidden="true"></i>
+			Previous
+		</a>
+		<a href="../variant_calling/" class="btn btn-sm btn-link">
+			Mapping and variant calling
+		</a>
+	</div>
+	
+
+	
+	<div class="col-sm text-center text-sm-right">
+		<a href="../args/" class="btn btn-sm btn-link">
+			Antimicrobial Resistance Genes
+		</a>
+		<a href="../args/" class="btn btn-sm btn-outline-dark">
+			Next
+			<i class="fa fa-chevron-right" aria-hidden="true"></i>
+		</a>
+	</div>
+	
+</div>
+
+			
+
+			<h1 id="multi-locus-sequence-typing">Multi-Locus Sequence Typing<a class="headerlink" href="#multi-locus-sequence-typing" title="Permanent link">#</a></h1>
+<p>In this practical we will perform the genome typing by MLST analysis on the assembly of <em>Klebsiella pneumoniae</em>, using the contigs/scaffolds produced by the hybrid assembly in a previous tutorial.</p>
+<h2 id="prepare-our-computing-environment">Prepare our computing environment<a class="headerlink" href="#prepare-our-computing-environment" title="Permanent link">#</a></h2>
+<p>We will first run the appropriate <code>srun</code> command to book the computing cores (cpus) on the cluster.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You need to ask the teacher which partition to use !</p>
+</div>
+<pre><code class="language-bash">srun -p SELECTED_PARTITION --cpus-per-task 2 --pty bash -i
+</code></pre>
+<p>You are now on a computing node, with computing 2 cpus reserved for you. That way, you can run commands interactively.</p>
+<p>If you want to exit the <code>srun</code> interactive mode, press CTRL+D or type <code>exit</code></p>
+<h2 id="run-the-mlst-program">Run the MLST program<a class="headerlink" href="#run-the-mlst-program" title="Permanent link">#</a></h2>
+<p>We should now identify our fasta file containing the contigs from the Unicycler hybrid assembly, produced from long and short reads. This will be the input file for mlst.</p>
+<pre><code class="language-bash">cd results
+ls -l
+</code></pre>
+<p>Now we will run the MLST tool:</p>
+<pre><code class="language-bash">module load system/singularity/3.6.0
+singularity run /path/to/mlst_singularity_container ...
+
+mlst K2_unicycler_scaffolds.fasta &gt; K2_unicycler_scaffolds_mlst.tsv
+</code></pre>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Ask the teacher for the MLST container path.</p>
+</div>
+<p>Once finished, you can exit the container by typing <code>exit</code> or press CTRL+D</p>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>Check the output file. What is the sequence type of this strain?</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>If the (hybrid) assemblies of the other <em>Klebsiella pneumoniae</em> strains are provided, try to make a loop to run the MLST analysis on all.</p>
+</div>
+
+			<br>
+			
+
+
+
+
+
+
+<div class="row pt-2 pb-4">
+	<div class="col-sm text-center text-sm-left">
+		<a href="../variant_calling/" class="btn btn-sm btn-outline-dark">
+			<i class="fa fa-chevron-left" aria-hidden="true"></i>
+			Previous
+		</a>
+		<a href="../variant_calling/" class="btn btn-sm btn-link">
+			Mapping and variant calling
+		</a>
+	</div>
+	
+
+	
+	<div class="col-sm text-center text-sm-right">
+		<a href="../args/" class="btn btn-sm btn-link">
+			Antimicrobial Resistance Genes
+		</a>
+		<a href="../args/" class="btn btn-sm btn-outline-dark">
+			Next
+			<i class="fa fa-chevron-right" aria-hidden="true"></i>
+		</a>
+	</div>
+	
+</div>
+
+			<br>
+		</div>
+
+		<footer class="container-fluid wm-page-content text-center small">
+			<p>
+			<a href="https://github.com/jhayer/bacterial_genomics_training/edit/master/docs/mlst.md" target="_blank">Edit on jhayer/bacterial_genomics_training</a>
+			</p>
+			<details>
+				<summary>
+					Documentation built with <a href="http://www.mkdocs.org/" target="_blank">MkDocs</a> using  <a href="https://github.com/Siphalor/mkdocs-custommill" target="_blank">CustomMill</a>.
+				</summary>
+				<h6 class="mt-2">Additional Licenses</h6>
+				<ul><li>
+						CustomMill is based on the <a href="https://github.com/gristlabs/mkdocs-windmill" target="_blank">Windmill</a> theme by Grist Labs, licensed under the <a href="https://github.com/gristlabs/mkdocs-windmill/blob/master/LICENSE" target="_blank">MIT License</a>
+					</li>
+					<li>
+						CustomMill includes <a href="https://getbootstrap.com" target="_blank">Bootstrap</a> version 5.1.3. This is available under the <a href="https://github.com/twbs/bootstrap/blob/master/LICENSE" target="_blank">MIT License</a>.
+					</li>
+					<li>
+						Syntax highlighting is implemented via <a href="https://highlightjs.org" target="_blank">highlight.js</a> licensed under the BSD 3-Clause License and the included github styling made by Vasily Polovnyov.
+					</li>
+					<li>
+						Icons on this site are from <a href="https://fontawesome.com/" target="_blank">Font Awesome</a> which is licensed under the <a href="https://fontawesome.com/license/free" target="_blank">Font Awesome Free License</a>.
+					</li></ul>
+				<p>Built at 2022-11-11 16:51:21 UTC</p>
+			</details>
+		</footer>
+
+		
+	</body>
+</html>

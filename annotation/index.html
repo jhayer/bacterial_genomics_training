@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		
+		
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+		<meta name="author" content="Juliette Hayer and Lokman Galal">
+		<link rel="canonical" href="https://jhayer.github.io/bacterial_genomics_training/annotation/">
+		<link rel="shortcut icon" href="../img/favicon.ico">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+		<title>Annotation - Bioinformatics Tutorials for Bacterial Genomics</title>
+		<link href="../bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+		<link href="../css/font-awesome-5.12.2-all.min.css" rel="stylesheet">
+		<link href="../css/base.css" rel="stylesheet">
+		<link rel="stylesheet" href="../css/highlight-github.css">
+		<script src="../bootstrap/dist/js/bootstrap.min.js"></script>
+		<script src="../js/highlight.pack.js"></script>
+		
+		<script>
+			var base_url = '..';
+			var home_url = '../usage';
+			var is_outer_page = false;
+			
+			var pageToc = [
+				{title: "Genome Annotation", url: "#_top", children: [
+						
+				{title: "Lecture", url: "#_top", children: [
+				]},
+				{title: "Prepare our computing environment", url: "#prepare-our-computing-environment", children: [
+				]},
+				{title: "Input data", url: "#input-data", children: [
+				]},
+				{title: "Running prokka", url: "#running-prokka", children: [
+				]},
+				{title: "Preparing Prokka script for loop", url: "#preparing-prokka-script-for-loop", children: [
+				]},
+				{title: "Visualising the annotation", url: "#visualising-the-annotation", children: [
+				]},
+				]},
+			];
+
+		</script>
+		<script src="../js/base.js"></script> 
+	</head>
+
+	<body class="inner-page">
+		
+
+		<div class="container-fluid wm-page-content">
+			<a name="_top" aria-hidden="true"></a>
+			
+
+
+
+
+
+
+<div class="row pt-2 pb-4">
+	<div class="col-sm text-center text-sm-left">
+		<a href="../plasmids/" class="btn btn-sm btn-outline-dark">
+			<i class="fa fa-chevron-left" aria-hidden="true"></i>
+			Previous
+		</a>
+		<a href="../plasmids/" class="btn btn-sm btn-link">
+			Plasmids
+		</a>
+	</div>
+	
+
+	
+	<div class="col-sm text-center text-sm-right">
+		<a href="../pan_genome/" class="btn btn-sm btn-link">
+			Pangenome
+		</a>
+		<a href="../pan_genome/" class="btn btn-sm btn-outline-dark">
+			Next
+			<i class="fa fa-chevron-right" aria-hidden="true"></i>
+		</a>
+	</div>
+	
+</div>
+
+			
+
+			<h1 id="genome-annotation">Genome Annotation<a class="headerlink" href="#genome-annotation" title="Permanent link">#</a></h1>
+<h2 id="lecture">Lecture<a class="headerlink" href="#lecture" title="Permanent link">#</a></h2>
+<p><br></p>
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vTERGc6gJyJeGylr6xzXvioMFixfI6x9XIT8QHqC8XIq8cP3KHe6PUuumbMrunSCVlbFhFJaVh2wvMh/embed?start=false&loop=false&delayms=3000" frameborder="0" width="480" height="389" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+
+<p>After you have de novo assembled your genome sequencing reads into contigs, it is useful to know what genomic features are on those contigs. The process of identifying and labelling those features is called genome annotation.</p>
+<p>Prokka is a "wrapper"; it collects together several pieces of software (from various authors), and so avoids "re-inventing the wheel".</p>
+<p>Prokka finds and annotates features (both protein coding regions and RNA genes, i.e. tRNA, rRNA) present on on a sequence. Prokka uses a two-step process for the annotation of protein coding regions: first, protein coding regions on the genome are identified using <a href="http://compbio.ornl.gov/prodigal/">Prodigal</a>; second, the function of the encoded protein is predicted by similarity to proteins in one of many protein or protein domain databases. Prokka is a software tool that can be used to annotate bacterial, archaeal and viral genomes quickly, generating standard output files in GenBank, EMBL and gff formats. More information about Prokka can be found <a href="https://github.com/tseemann/prokka">here</a>.</p>
+<h2 id="prepare-our-computing-environment">Prepare our computing environment<a class="headerlink" href="#prepare-our-computing-environment" title="Permanent link">#</a></h2>
+<p>We will first run the appropriate <code>srun</code> command to book the computing cores (cpus) on the cluster.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You need to ask the teacher which partition to use !</p>
+</div>
+<pre><code class="language-bash">srun -p SELECTED_PARTITION --cpus-per-task 2 --pty bash -i
+</code></pre>
+<p>You are now on a computing node, with computing 2 cpus reserved for you. That way, you can run commands interactively.</p>
+<p>If you want to exit the <code>srun</code> interactive mode, press CTRL+D or type <code>exit</code></p>
+<h2 id="input-data">Input data<a class="headerlink" href="#input-data" title="Permanent link">#</a></h2>
+<p>Prokka requires assembled contigs. You can prepare you working directory for this annotation tutorial.</p>
+<pre><code class="language-bash">cd results
+ls -l
+mkdir annotation
+cd annotation
+</code></pre>
+<p>You will link the hybrid assemblies of the 5 Klebsiella strains in this annotation directory:</p>
+<pre><code class="language-bash">ln -s ../K*_unicycler_scaffolds.fasta
+</code></pre>
+<p>You will also need a proteins set specific of <em>Klebsiella pneumoniae</em> for the annotation. You can go to the <a href="https://www.uniprot.org">Uniprot/Swiss-Prot</a> database website and search for all the proteins sequences for the organism <em>Klebsiella pneumoniae</em>, select only the <em>reviewed</em> entries, and download the fasta file of those.</p>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+</div>
+<p>How many reviewed protein entries are available for <em>Klebsiella pneumoniae</em> in Swiss-Prot ?</p>
+<p>For your convenience, we have made the resulting file available. You can copy it by typing the following command:</p>
+<pre><code class="language-bash">cp /scratch/genesys_training/files/annotation/swissprot_kp_221107.fasta .
+</code></pre>
+<h2 id="running-prokka">Running prokka<a class="headerlink" href="#running-prokka" title="Permanent link">#</a></h2>
+<pre><code class="language-bash">module load bioinfo/prokka/1.14.6
+
+prokka --force --genus Klebsiella --species pneumoniae \
+  --kingdom Bacteria --usegenus --proteins swissprot_kp_221107.fasta \
+  --notrna --prefix K2 --outdir K2_prokka K2_unicycler_scaffolds.fasta
+</code></pre>
+<p>Once Prokka has finished, examine each of its output files.</p>
+<ul>
+<li>The GFF and GBK files contain all of the information about the features annotated (in different formats.)</li>
+<li>The .txt file contains a summary of the number of features annotated.</li>
+<li>The .faa file contains the protein sequences of the genes annotated.</li>
+<li>The .ffn file contains the nucleotide sequences of the genes annotated.</li>
+</ul>
+<h2 id="preparing-prokka-script-for-loop">Preparing Prokka script for loop<a class="headerlink" href="#preparing-prokka-script-for-loop" title="Permanent link">#</a></h2>
+<p>We now want to run Prokka on all our strains, so we can compare the annotations later.</p>
+<p>We will prepare a <code>prokka_kp.sh</code> script for doing so, in the scripts directory.
+Here is an example:</p>
+<pre><code>#!/bin/bash
+## SLURM CONFIG ##
+
+#SBATCH --job-name=prokka
+#SBATCH --output=%x.%j.out
+#SBATCH --cpus-per-task 2
+#SBATCH --time=24:00:00
+#SBATCH -p SELECTED_PARTITION
+#SBATCH --mail-type=FAIL,END
+#SBATCH --mem-per-cpu=4G
+
+#variables
+suffix=&quot;_scaffolds.fasta&quot;
+prefix=&quot;${1%$suffix}&quot;
+
+module load bioinfo/prokka/1.14.6
+
+prokka --force --genus Klebsiella --species pneumoniae \
+          --kingdom Bacteria --usegenus --proteins swissprot_kp_221107.fasta \
+          --notrna --prefix ${prefix} --outdir ${prefix}_prokka ${1}
+</code></pre>
+<p>Once your are ready with your script, you can run the loop for <code>sbatch</code> it:</p>
+<pre><code class="language-bash">for i in K*scaffolds.fasta; do sbatch ../scripts/prokka_kp.sh $i; done
+</code></pre>
+<h2 id="visualising-the-annotation">Visualising the annotation<a class="headerlink" href="#visualising-the-annotation" title="Permanent link">#</a></h2>
+<p>Artemis is a graphical Java program to browse annotated genomes. Download it <a href="http://www.sanger.ac.uk/science/tools/artemis">here</a> and install it on your local computer.</p>
+<p>Copy the .gff file produced by prokka on your computer, and open it with artemis.</p>
+<p>You will be overwhelmed and/or confused at first, and possibly permanently. Here are some tips:</p>
+<ul>
+<li>There are 3 panels: feature map (top), sequence (middle), feature list (bottom)</li>
+<li>Click right-mouse-button on bottom panel and select Show products</li>
+<li>Zooming is done via the vertical scroll bars in the two top panels</li>
+</ul>
+
+			<br>
+			
+
+
+
+
+
+
+<div class="row pt-2 pb-4">
+	<div class="col-sm text-center text-sm-left">
+		<a href="../plasmids/" class="btn btn-sm btn-outline-dark">
+			<i class="fa fa-chevron-left" aria-hidden="true"></i>
+			Previous
+		</a>
+		<a href="../plasmids/" class="btn btn-sm btn-link">
+			Plasmids
+		</a>
+	</div>
+	
+
+	
+	<div class="col-sm text-center text-sm-right">
+		<a href="../pan_genome/" class="btn btn-sm btn-link">
+			Pangenome
+		</a>
+		<a href="../pan_genome/" class="btn btn-sm btn-outline-dark">
+			Next
+			<i class="fa fa-chevron-right" aria-hidden="true"></i>
+		</a>
+	</div>
+	
+</div>
+
+			<br>
+		</div>
+
+		<footer class="container-fluid wm-page-content text-center small">
+			<p>
+			<a href="https://github.com/jhayer/bacterial_genomics_training/edit/master/docs/annotation.md" target="_blank">Edit on jhayer/bacterial_genomics_training</a>
+			</p>
+			<details>
+				<summary>
+					Documentation built with <a href="http://www.mkdocs.org/" target="_blank">MkDocs</a> using  <a href="https://github.com/Siphalor/mkdocs-custommill" target="_blank">CustomMill</a>.
+				</summary>
+				<h6 class="mt-2">Additional Licenses</h6>
+				<ul><li>
+						CustomMill is based on the <a href="https://github.com/gristlabs/mkdocs-windmill" target="_blank">Windmill</a> theme by Grist Labs, licensed under the <a href="https://github.com/gristlabs/mkdocs-windmill/blob/master/LICENSE" target="_blank">MIT License</a>
+					</li>
+					<li>
+						CustomMill includes <a href="https://getbootstrap.com" target="_blank">Bootstrap</a> version 5.1.3. This is available under the <a href="https://github.com/twbs/bootstrap/blob/master/LICENSE" target="_blank">MIT License</a>.
+					</li>
+					<li>
+						Syntax highlighting is implemented via <a href="https://highlightjs.org" target="_blank">highlight.js</a> licensed under the BSD 3-Clause License and the included github styling made by Vasily Polovnyov.
+					</li>
+					<li>
+						Icons on this site are from <a href="https://fontawesome.com/" target="_blank">Font Awesome</a> which is licensed under the <a href="https://fontawesome.com/license/free" target="_blank">Font Awesome Free License</a>.
+					</li></ul>
+				<p>Built at 2022-11-11 16:51:21 UTC</p>
+			</details>
+		</footer>
+
+		
+	</body>
+</html>

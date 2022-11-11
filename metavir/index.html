@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		
+		
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+		<meta name="author" content="Juliette Hayer and Lokman Galal">
+		<link rel="canonical" href="https://jhayer.github.io/bacterial_genomics_training/metavir/">
+		<link rel="shortcut icon" href="../img/favicon.ico">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+		<title>Viral Metagenomics - Bioinformatics Tutorials for Bacterial Genomics</title>
+		<link href="../bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+		<link href="../css/font-awesome-5.12.2-all.min.css" rel="stylesheet">
+		<link href="../css/base.css" rel="stylesheet">
+		<link rel="stylesheet" href="../css/highlight-github.css">
+		<script src="../bootstrap/dist/js/bootstrap.min.js"></script>
+		<script src="../js/highlight.pack.js"></script>
+		
+		<script>
+			var base_url = '..';
+			var home_url = '../usage';
+			var is_outer_page = false;
+			
+			var pageToc = [
+				{title: "Viral Metagenome from a dolphin sample: hunting for a disease causing virus", url: "#_top", children: [
+						
+				{title: "Getting the Data", url: "#_top", children: [
+				]},
+				{title: "Quality Control", url: "#quality-control", children: [
+				]},
+				{title: "Quality control with Fastp", url: "#quality-control-with-fastp", children: [
+				]},
+				{title: "Removing the host sequences by mapping/aligning on the dolphin genome", url: "#removing-the-host-sequences-by-mappingaligning-on-the-dolphin-genome", children: [
+				]},
+				{title: "Taxonomic classification of the trimmed reads with Kraken2", url: "#taxonomic-classification-of-the-trimmed-reads-with-kraken2", children: [
+				]},
+				{title: "Assembly", url: "#assembly", children: [
+				]},
+				{title: "Taxonomic classification of contigs", url: "#taxonomic-classification-of-contigs", children: [
+				]},
+				{title: "Extraction of the contig of interest", url: "#extraction-of-the-contig-of-interest", children: [
+				]},
+				{title: "Pavian", url: "#pavian", children: [
+				]},
+				{title: "Genome annotation of the contig of interest", url: "#genome-annotation-of-the-contig-of-interest", children: [
+				]},
+				{title: "Visualization and manual curation.", url: "#visualization-and-manual-curation", children: [
+				]},
+				{title: "Go further with proteins functions", url: "#go-further-with-proteins-functions", children: [
+				]},
+				]},
+			];
+
+		</script>
+		<script src="../js/base.js"></script> 
+	</head>
+
+	<body class="inner-page">
+		
+
+		<div class="container-fluid wm-page-content">
+			<a name="_top" aria-hidden="true"></a>
+			
+
+
+
+
+
+
+<div class="row pt-2 pb-4">
+	<div class="col-sm text-center text-sm-left">
+		<a href="../pan_genome/" class="btn btn-sm btn-outline-dark">
+			<i class="fa fa-chevron-left" aria-hidden="true"></i>
+			Previous
+		</a>
+		<a href="../pan_genome/" class="btn btn-sm btn-link">
+			Pangenome
+		</a>
+	</div>
+	
+
+	
+	<div class="col-sm text-center text-sm-right">
+		<a href="../mkdocs_usage/" class="btn btn-sm btn-link">
+			Mkdocs usage
+		</a>
+		<a href="../mkdocs_usage/" class="btn btn-sm btn-outline-dark">
+			Next
+			<i class="fa fa-chevron-right" aria-hidden="true"></i>
+		</a>
+	</div>
+	
+</div>
+
+			
+
+			<h1 id="viral-metagenome-from-a-dolphin-sample-hunting-for-a-disease-causing-virus">Viral Metagenome from a dolphin sample: hunting for a disease causing virus<a class="headerlink" href="#viral-metagenome-from-a-dolphin-sample-hunting-for-a-disease-causing-virus" title="Permanent link">#</a></h1>
+<p>In this tutorial you will learn how to investigate metagenomics data and retrieve draft genome from an assembled metagenome.</p>
+<p>We will use a real dataset published in 2017 in a study in dolphins,
+where fecal samples where prepared for viral metagenomics study.
+The dolphin had a self-limiting gastroenteritis of suspected viral origin.</p>
+<h2 id="getting-the-data">Getting the Data<a class="headerlink" href="#getting-the-data" title="Permanent link">#</a></h2>
+<p>First, create an appropriate directory to put the data, within your directory for the training:</p>
+<pre><code class="language-bash">mkdir -p dolphin/data
+cd dolphin/data
+</code></pre>
+<p>You can download them from here:</p>
+<pre><code>wget ftp://ftp.sra.ebi.ac.uk/vol1/run/ERR193/ERR1938563/Dol1_S19_L001_R1_001.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/run/ERR193/ERR1938563/Dol1_S19_L001_R2_001.fastq.gz
+</code></pre>
+<p>Alternatively, your instructor will let you know where to get the dataset from.</p>
+<p>You should get 2 compressed files:</p>
+<pre><code>Dol1_S19_L001_R1_001.fastq.gz
+Dol1_S19_L001_R2_001.fastq.gz
+</code></pre>
+<h2 id="quality-control">Quality Control<a class="headerlink" href="#quality-control" title="Permanent link">#</a></h2>
+<p>We will first run the appropriate <code>srun</code> command to book the computing cores (cpus) on the cluster.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You need to ask the teacher which partition to use !</p>
+</div>
+<pre><code class="language-bash">srun -p SELECTED_PARTITION --pty bash -i
+</code></pre>
+<p>We will use FastQC to check the quality of our data, as well as fastp for trimming the bad quality part of the reads.
+If you need a refresher on how and why to check the quality of sequence data, please check the <a href="qc">Quality Control and Trimming</a> tutorial</p>
+<pre><code class="language-bash">mkdir -p dolphin/results
+cd dolphin/results
+ln -s ../data/Dol1* .
+
+module load bioinfo/FastQC/0.11.9
+fastqc Dol1_*.fastq.gz
+</code></pre>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>What is the average read length? The average quality?</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>Compared to single genome sequencing, which graphs differ?</p>
+</div>
+<h2 id="quality-control-with-fastp">Quality control with Fastp<a class="headerlink" href="#quality-control-with-fastp" title="Permanent link">#</a></h2>
+<p>We will removing the adapters and trim by quality.</p>
+<p>Now we run fastp our read files</p>
+<pre><code class="language-bash">module load bioinfo/fastp/0.20.1
+
+fastp -i Dol1_S19_L001_R1_001.fastq.gz -o Dol1_trimmed_R1.fastq \
+ -I Dol1_S19_L001_R2_001.fastq.gz -O Dol1_trimmed_R2.fastq \
+ --detect_adapter_for_pe --length_required 30 \
+ --cut_front --cut_tail --cut_mean_quality 10
+</code></pre>
+<p>Check the html report produced.</p>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>How many reads were trimmed?</p>
+</div>
+<h2 id="removing-the-host-sequences-by-mappingaligning-on-the-dolphin-genome">Removing the host sequences by mapping/aligning on the dolphin genome<a class="headerlink" href="#removing-the-host-sequences-by-mappingaligning-on-the-dolphin-genome" title="Permanent link">#</a></h2>
+<p>For this we will use Bowtie2.
+We have downloaded the genome of Tursiops truncatus from Ensembl (fasta file). Then we have run the following command to produce the indexes of the dolphin genome for Bowtie2 (do not run it, we have pre-calculated the results for you):</p>
+<pre><code>bowtie2-build Tursiops_truncatus.turTru1.dna.toplevel.fa Tursiops_truncatus
+</code></pre>
+<p>Because this step takes a while, we have precomputed the index files, you can get them from here:</p>
+<pre><code class="language-bash">cd dolphin/data
+cp /scratch/genesys_training/files/dolphin/Tursiops_truncatus*.bt2 .
+</code></pre>
+<p>Now we are ready to map our sequencing reads on the dolphin genome:</p>
+<pre><code>cd ../results
+
+module load bioinfo/bowtie2/2.3.4.1
+
+bowtie2 -x ../data/Tursiops_truncatus \
+-1 Dol1_trimmed_R1.fastq -2 Dol1_trimmed_R2.fastq \
+-S Dol1_map.sam --un-conc Dol1_reads_unmapped.fastq --threads 2
+</code></pre>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>How many reads have mapped on the dolphin genome?</p>
+</div>
+<h2 id="taxonomic-classification-of-the-trimmed-reads-with-kraken2">Taxonomic classification of the trimmed reads with Kraken2<a class="headerlink" href="#taxonomic-classification-of-the-trimmed-reads-with-kraken2" title="Permanent link">#</a></h2>
+<p>We will use Kraken2 for the classification of the unmapped reads.</p>
+<pre><code class="language-bash">module load bioinfo/kraken2/2.1.1
+
+mkdir Dol1_reads_unmapped_Kn2nt
+
+kraken2 --db /data/projects/banks/kraken2/nt/21-09/nt/ --memory-mapping --threads 4 --output Dol1_reads_unmapped_Kn2nt/Dol1_reads_unmapped_kn2_nt-res.txt --report Dol1_reads_unmapped_Kn2nt/Dol1_reads_unmapped_kn2_nt-report.txt --report-minimizer-data --paired Dol1_reads_unmapped.1.fastq Dol1_reads_unmapped.2.fastq
+</code></pre>
+<p>This command can take very long, therefore we recommend you to prepare a more generic script for running Kraken, with the possibility to run on paired reads or on a single contigs fasta file.</p>
+<p>Follow the example below to prepare a <code>kraken2_nt.sh</code> script in your <code>scripts</code> directory.</p>
+<pre><code>#!/bin/bash
+## SLURM CONFIG ##
+
+#SBATCH --job-name=kn2nt
+#SBATCH --output=%x.%j.out
+#SBATCH -c 4
+#SBATCH --time=96:00:00
+#SBATCH -p SELECTED_PARTITION
+#SBATCH --mail-type=FAIL,END
+#SBATCH --mem-per-cpu=4G
+
+###
+
+HELP=&quot;
+USAGE: kraken2_nt.sh reads_file1.fastq [reads_file2.fastq]
+&quot;
+# If we didn't get any arguments, print help and exit
+if [[ $# &lt; 1 ]]
+then
+    echo &quot;$HELP&quot;
+    exit 0
+fi
+
+# If we have a help flag anywhere among the arguments
+for arg in $@
+do
+    if [ &quot;$arg&quot; == &quot;-h&quot; ] || [ &quot;$arg&quot; == &quot;--help&quot; ]
+    then
+        echo &quot;$HELP&quot;
+    fi
+done
+
+##### KRAKEN VARIABLES ####
+PATH_DB=&quot;/data/projects/banks/kraken2/nt/21-09/nt/&quot;
+QUERY_FILE=$1
+PREFIX=$(echo $1 | cut -f1 -d.)
+DATA_DIR=`pwd`
+OUT_DIR=&quot;${DATA_DIR}/${PREFIX}_Kn2nt&quot;
+mkdir $OUT_DIR
+
+module load bioinfo/kraken2/2.1.1
+
+if [[ $# &gt; 1 ]]
+then
+# Taxonomic classification with Kraken2 on nt db for paired end reads
+
+    QUERY_FILE2=$2
+    kraken2 --db ${PATH_DB} --memory-mapping --threads 4 --output ${OUT_DIR}/${PREFIX}_kn2_nt-res.txt --report ${OUT_DIR}/${PREFIX}_kn2_nt-report.txt --report-minimizer-data --paired ${QUERY_FILE} ${QUERY_FILE2}
+else
+# one single input file (e.g: scaffolds.fasta)
+
+    kraken2 --db ${PATH_DB} --memory-mapping --threads 4 --output ${OUT_DIR}/${PREFIX}_kn2_nt-res.txt --report ${OUT_DIR}/${PREFIX}_kn2_nt-report.txt --report-minimizer-data ${QUERY_FILE}
+fi
+
+</code></pre>
+<p>Once the script is ready, you can run it on the reads as follow:</p>
+<pre><code class="language-bash">sbatch ../../scripts/kraken2_nt.sh Dol1_reads_unmapped.1.fastq Dol1_reads_unmapped.2.fastq
+</code></pre>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>Inspect the 2 output files from Kraken and comment.</p>
+</div>
+<h2 id="assembly">Assembly<a class="headerlink" href="#assembly" title="Permanent link">#</a></h2>
+<p>Megahit will be used for the <em>de novo</em> assembly of the metagenome.</p>
+<pre><code>module load bioinfo/MEGAHIT/1.2.9
+megahit -1 Dol1_reads_unmapped.1.fastq -2 Dol1_reads_unmapped.2.fastq -o Dol1_assembly
+</code></pre>
+<p>The resulting assembly can be found under <code>assembly/final.contigs.fa</code>.</p>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>How many contigs does this assembly contain? Is there any long contig?</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Use the command <code>grep</code> with the symbol <code>&gt;</code> to visualise the fasta sequences headers and count them</p>
+</div>
+<h2 id="taxonomic-classification-of-contigs">Taxonomic classification of contigs<a class="headerlink" href="#taxonomic-classification-of-contigs" title="Permanent link">#</a></h2>
+<p>We will use Kraken again with the same nt database for the classification of the produced contigs.</p>
+<pre><code class="language-bash"># in the results directory, link the contigs file
+ln -s Dol1_assembly/final.contigs.fa Dol1_assembly_contigs.fa
+
+# then run you previously made Kraken script using sbatch
+sbatch ../../scripts/kraken2_nt.sh Dol1_assembly_contigs.fa
+</code></pre>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>Does the classification of contigs produce different results than the classification of reads?</p>
+</div>
+<h2 id="extraction-of-the-contig-of-interest">Extraction of the contig of interest<a class="headerlink" href="#extraction-of-the-contig-of-interest" title="Permanent link">#</a></h2>
+<p>Let's go for a little practice of your Unix skills!</p>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>Find a way to to find the longest contig. They look like this:</p>
+</div>
+<pre><code>&gt;k141_1 flag=1 multi=1.0000 len=301
+&gt;k141_2 flag=1 multi=1.0000 len=303
+</code></pre>
+<p><strong>hint 1</strong>: all lines containing '&gt;'</p>
+<p><strong>hint 2</strong>: use grep and sed</p>
+<p>Once we have this file, we want to sort all the sequences headers by the sequence length (len=X):</p>
+<pre><code class="language-bash">cat Dol1_assembly_contigs.fa | grep &quot;&gt;&quot; | sed s/len=// | sort -k4n | tail -1
+</code></pre>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>What is the size of the longest contig?</p>
+</div>
+<p>Now that you have identified the sequence header or id of the longest contig, you want to save it to a fasta file.</p>
+<pre><code class="language-bash">grep -i '&gt;k141_XXX' -A 1 Dol1_assembly_contigs.fa &gt; longest_contig.fasta
+</code></pre>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You need to replace the XXX by the correct header.
+The option -A 1 of grep allows to print 1 line additionally to the matching line (which enables to print the full sequence that corresponds to one line).
+Test with -A 2 (without the redirection to longest_contig.fasta) to see what happens.</p>
+</div>
+<p>Now that you have identified the longest contig, you will check in Kraken results what was the taxon assigned to this contig.</p>
+<p>Have a look at the file <strong>Dol1_assembly_contigs_kn2_nt-res.txt</strong>. It is structured in 5 columns:
+classification status (C/U), sequence id, assigned TaxID, sequence length, k-mers classification.
+For more info about Kraken2, check the <a href="https://github.com/DerrickWood/kraken2/wiki/Manual">manual</a></p>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>Identify the TaxID of the longest contig and search on NCBI Taxonomy database to which species it corresponds to.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Note that there is an easy way to extract all the sequences classified at a certain Taxon (using the NCBI TaxID), including or not the sequences classified at "children taxa" of this. A useful Python script is available through <a href="https://github.com/jenniferlu717/KrakenTools">KrakenTools</a> with a few other tools around Kraken.
+If you have the time, do not hesitate to ask the teacher to help you installing and using it.</p>
+</div>
+<h2 id="pavian">Pavian<a class="headerlink" href="#pavian" title="Permanent link">#</a></h2>
+<p>We will use Pavian for visualising Kraken2 results for reads and contigs.
+First, copy all the Kraken reports on your computer.
+Go to Rstudio and follow the instructions of <a href="https://github.com/fbreitwieser/pavian">Pavian</a> for running the app.</p>
+<p>The teacher will guide you for this step.</p>
+<pre><code class="language-R">if (!require(remotes)) { install.packages(&quot;remotes&quot;) }
+remotes::install_github(&quot;fbreitwieser/pavian&quot;)
+</code></pre>
+<p>To run Pavian from R, type:</p>
+<pre><code class="language-R">pavian::runApp(port=5000)
+</code></pre>
+<h2 id="genome-annotation-of-the-contig-of-interest">Genome annotation of the contig of interest<a class="headerlink" href="#genome-annotation-of-the-contig-of-interest" title="Permanent link">#</a></h2>
+<p>Once the contig to annotate is extracted and saved in the file longest_contig.fasta, we will use Prokka to detect ORFs (Open Reading Frames) in order to predict genes and their resulting proteins.</p>
+<p>First, go to Uniprot database and retrieve a set of protein sequences
+belonging to adenoviruses. Save the file as <code>adenovirus.faa</code> and copy it in
+your results directory.</p>
+<pre><code class="language-bash">module load bioinfo/prokka/1.14.6
+
+prokka --outdir annotation --kingdom Viruses \
+--proteins adenovirus.faa longest_contig.fasta
+</code></pre>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>How many genes and proteins were predicted?</p>
+</div>
+<h2 id="visualization-and-manual-curation">Visualization and manual curation.<a class="headerlink" href="#visualization-and-manual-curation" title="Permanent link">#</a></h2>
+<p>If there is some time left, you can visualise the produced annotation (gff file)
+in Ugene or Artemis for example.</p>
+<h2 id="go-further-with-proteins-functions">Go further with proteins functions<a class="headerlink" href="#go-further-with-proteins-functions" title="Permanent link">#</a></h2>
+<p>For the predicted proteins that are left "hypotetical", you can try running
+<a href="https://www.ebi.ac.uk/interpro/search/sequence-search">Interproscan</a> on them to get more information on domains and motifs.</p>
+
+			<br>
+			
+
+
+
+
+
+
+<div class="row pt-2 pb-4">
+	<div class="col-sm text-center text-sm-left">
+		<a href="../pan_genome/" class="btn btn-sm btn-outline-dark">
+			<i class="fa fa-chevron-left" aria-hidden="true"></i>
+			Previous
+		</a>
+		<a href="../pan_genome/" class="btn btn-sm btn-link">
+			Pangenome
+		</a>
+	</div>
+	
+
+	
+	<div class="col-sm text-center text-sm-right">
+		<a href="../mkdocs_usage/" class="btn btn-sm btn-link">
+			Mkdocs usage
+		</a>
+		<a href="../mkdocs_usage/" class="btn btn-sm btn-outline-dark">
+			Next
+			<i class="fa fa-chevron-right" aria-hidden="true"></i>
+		</a>
+	</div>
+	
+</div>
+
+			<br>
+		</div>
+
+		<footer class="container-fluid wm-page-content text-center small">
+			<p>
+			<a href="https://github.com/jhayer/bacterial_genomics_training/edit/master/docs/metavir.md" target="_blank">Edit on jhayer/bacterial_genomics_training</a>
+			</p>
+			<details>
+				<summary>
+					Documentation built with <a href="http://www.mkdocs.org/" target="_blank">MkDocs</a> using  <a href="https://github.com/Siphalor/mkdocs-custommill" target="_blank">CustomMill</a>.
+				</summary>
+				<h6 class="mt-2">Additional Licenses</h6>
+				<ul><li>
+						CustomMill is based on the <a href="https://github.com/gristlabs/mkdocs-windmill" target="_blank">Windmill</a> theme by Grist Labs, licensed under the <a href="https://github.com/gristlabs/mkdocs-windmill/blob/master/LICENSE" target="_blank">MIT License</a>
+					</li>
+					<li>
+						CustomMill includes <a href="https://getbootstrap.com" target="_blank">Bootstrap</a> version 5.1.3. This is available under the <a href="https://github.com/twbs/bootstrap/blob/master/LICENSE" target="_blank">MIT License</a>.
+					</li>
+					<li>
+						Syntax highlighting is implemented via <a href="https://highlightjs.org" target="_blank">highlight.js</a> licensed under the BSD 3-Clause License and the included github styling made by Vasily Polovnyov.
+					</li>
+					<li>
+						Icons on this site are from <a href="https://fontawesome.com/" target="_blank">Font Awesome</a> which is licensed under the <a href="https://fontawesome.com/license/free" target="_blank">Font Awesome Free License</a>.
+					</li></ul>
+				<p>Built at 2022-11-11 16:51:21 UTC</p>
+			</details>
+		</footer>
+
+		
+	</body>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		
+		
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+		<meta name="author" content="Juliette Hayer and Lokman Galal">
+		<link rel="canonical" href="https://jhayer.github.io/bacterial_genomics_training/itrop/">
+		<link rel="shortcut icon" href="../img/favicon.ico">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+		<title>iTrop computing cluster - Bioinformatics Tutorials for Bacterial Genomics</title>
+		<link href="../bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+		<link href="../css/font-awesome-5.12.2-all.min.css" rel="stylesheet">
+		<link href="../css/base.css" rel="stylesheet">
+		<link rel="stylesheet" href="../css/highlight-github.css">
+		<script src="../bootstrap/dist/js/bootstrap.min.js"></script>
+		<script src="../js/highlight.pack.js"></script>
+		
+		<script>
+			var base_url = '..';
+			var home_url = '../usage';
+			var is_outer_page = false;
+			
+			var pageToc = [
+				{title: "i-Trop cluster", url: "#_top", children: [
+						
+				{title: "Architecture of the i-Trop cluster", url: "#_top", children: [
+				]},
+				{title: "Connect to the cluster via ssh", url: "#connect-to-the-cluster-via-ssh", children: [
+				]},
+				{title: "Explore the cluster", url: "#explore-the-cluster", children: [
+				]},
+				{title: "Choose a partition", url: "#choose-a-partition", children: [
+				]},
+				{title: "Data location", url: "#data-location", children: [
+				]},
+				{title: "Launching a program on the cluster", url: "#launching-a-program-on-the-cluster", children: [
+				]},
+				{title: "Launch a job", url: "#launch-a-job", children: [
+				]},
+				]},
+			];
+
+		</script>
+		<script src="../js/base.js"></script> 
+	</head>
+
+	<body class="inner-page">
+		
+
+		<div class="container-fluid wm-page-content">
+			<a name="_top" aria-hidden="true"></a>
+			
+
+
+
+
+
+
+<div class="row pt-2 pb-4">
+	<div class="col-sm text-center text-sm-left">
+		<a href="../project_organisation/" class="btn btn-sm btn-outline-dark">
+			<i class="fa fa-chevron-left" aria-hidden="true"></i>
+			Previous
+		</a>
+		<a href="../project_organisation/" class="btn btn-sm btn-link">
+			Project organisation
+		</a>
+	</div>
+	
+
+	
+	<div class="col-sm text-center text-sm-right">
+		<a href="../file_formats/" class="btn btn-sm btn-link">
+			File formats
+		</a>
+		<a href="../file_formats/" class="btn btn-sm btn-outline-dark">
+			Next
+			<i class="fa fa-chevron-right" aria-hidden="true"></i>
+		</a>
+	</div>
+	
+</div>
+
+			
+
+			<h1 id="i-trop-cluster">i-Trop cluster<a class="headerlink" href="#i-trop-cluster" title="Permanent link">#</a></h1>
+<h2 id="architecture-of-the-i-trop-cluster">Architecture of the i-Trop cluster<a class="headerlink" href="#architecture-of-the-i-trop-cluster" title="Permanent link">#</a></h2>
+<p>The IRD Bioinformatic Cluster is composed of a pool of machines reachable through a single entry point. The connections to the internal machines are managed by a master node that tries to ensure that proper balancing is made across the available nodes at a given moment: bioinfo-master.ird.fr</p>
+<p>The cluster is composed of:</p>
+<ul>
+<li>1 master</li>
+<li>3 nas servers for a 127To data storage</li>
+<li>32 nodes servers : 8 nodes with 12 cores, 2 nodes with 16 cores, 4 nodes with 20 cores, 11 with 24 cores, 1 with 40 cores with RAM from 48Go to 1To and a GPU serveur with 8 RTX 2080 graphical cards.</li>
+</ul>
+<p><a href="https://github.com/lokman89/bioinformatics_tutorials/blob/temp/schema_cluster_150221.png">Here</a> is the architecture</p>
+<h2 id="connect-to-the-cluster-via-ssh">Connect to the cluster via <em>ssh</em><a class="headerlink" href="#connect-to-the-cluster-via-ssh" title="Permanent link">#</a></h2>
+<p>Open the terminal application and type the following command:</p>
+<p><code>ssh login@bioinfo-master.ird.fr</code></p>
+<p>with login: your cluster account</p>
+<p><strong>First connection</strong>:</p>
+<p>Your password has to be changed at your first connection.</p>
+<p>“Mot de passe UNIX (actuel)”: you are asked to type the password provided in the account creation email.</p>
+<h4 id="connect-to-a-node-in-interactive-mode-and-launch-commands">Connect to a node in interactive mode and launch commands:<a class="headerlink" href="#connect-to-a-node-in-interactive-mode-and-launch-commands" title="Permanent link">#</a></h4>
+<p>To connect to a node in interactive mode for X minutes, use the following command:</p>
+<p><code>srun -p short --time=X:00 --pty bash -i</code></p>
+<p>Then you can launch on this node without using the srun prefix srun
+Then type your new password twice.</p>
+<p>The session will be automatically closed.</p>
+<p>You will need to open a new session with your new password.</p>
+<h2 id="explore-the-cluster">Explore the cluster<a class="headerlink" href="#explore-the-cluster" title="Permanent link">#</a></h2>
+<p>The list of nodes in the cluster:</p>
+<p><code>sinfo -N nodes</code></p>
+<h2 id="choose-a-partition">Choose a partition<a class="headerlink" href="#choose-a-partition" title="Permanent link">#</a></h2>
+<p><em>short</em> partition: short Jobs &lt; 1 day  </p>
+<p><em>normal</em> partition: job of maximum 7 days</p>
+<p><em>long</em> partition: 7 days&lt; jobs &lt; 45 days</p>
+<p><em>highmem</em> partition: jobs with more memory needs</p>
+<p><em>highmemplus</em> partition: jobs with more memory needs</p>
+<p><em>supermem</em> partition: jobs with much more memory needs</p>
+<p><em>gpu</em> partition: need of analyses on GPU cores</p>
+<h4 id="choose-node5-highmemplus-partition">Choose <strong>node5</strong> (<em>highmemplus</em> partition):<a class="headerlink" href="#choose-node5-highmemplus-partition" title="Permanent link">#</a></h4>
+<p><code>srun -p highmemplus --nodelist=node5 --pty bash -i</code></p>
+<h2 id="data-location">Data location<a class="headerlink" href="#data-location" title="Permanent link">#</a></h2>
+<p>All the data used in this training can be found in the <em>scratch</em> space of node5.</p>
+<p><code>ls /scratch/genesys_training/</code></p>
+<h2 id="launching-a-program-on-the-cluster">Launching a program on the cluster<a class="headerlink" href="#launching-a-program-on-the-cluster" title="Permanent link">#</a></h2>
+<h3 id="list-the-program-already-installed-on-the-cluster">List the program already installed on the cluster:<a class="headerlink" href="#list-the-program-already-installed-on-the-cluster" title="Permanent link">#</a></h3>
+<p><code>module avail</code></p>
+<h3 id="display-the-description-of-a-particular-software">Display the description of a particular software<a class="headerlink" href="#display-the-description-of-a-particular-software" title="Permanent link">#</a></h3>
+<p><code>module whatis module_type/module_name/version</code></p>
+<p>with module_type: bioinfo or system with module_name: the name of the module.</p>
+<p>For example : for the version 1.7 of the bioinformatic software samtools:</p>
+<p><code>module whatis bioinfo/samtools/1.7</code></p>
+<h3 id="load-a-particular-software-version">Load a particular software version<a class="headerlink" href="#load-a-particular-software-version" title="Permanent link">#</a></h3>
+<p><code>module load module_type/module_name/version</code></p>
+<p>with module_type: bioinfo or system with module_name: the name of the module.</p>
+<p>For example : for the version 1.7 of the bioinformatic software samtools:</p>
+<p><code>module load bioinfo/samtools/1.7</code></p>
+<h3 id="unload-a-particular-software-version">Unload a particular software version<a class="headerlink" href="#unload-a-particular-software-version" title="Permanent link">#</a></h3>
+<p><code>module unload module_type/module_name/version</code></p>
+<p>with module_type: bioinfo or system with module_name: the name of the module.</p>
+<p>For example : for the version 1.7 of the bioinformatic software samtools:</p>
+<p><code>module unload bioinfo/samtools/1.7</code></p>
+<h3 id="display-all-the-modules-loaded">Display all the modules loaded<a class="headerlink" href="#display-all-the-modules-loaded" title="Permanent link">#</a></h3>
+<p><code>module list</code></p>
+<h3 id="unload-all-the-modules-loaded">unload all the modules loaded<a class="headerlink" href="#unload-all-the-modules-loaded" title="Permanent link">#</a></h3>
+<p><code>module unload</code></p>
+<h2 id="launch-a-job">Launch a job<a class="headerlink" href="#launch-a-job" title="Permanent link">#</a></h2>
+<p>A job can be launched interactively using <em>srun</em> or via a script using <em>sbatch</em></p>
+<h3 id="lauch-an-interactive-job">Lauch an interactive job<a class="headerlink" href="#lauch-an-interactive-job" title="Permanent link">#</a></h3>
+<h4 id="connect-to-a-node-in-interactive-mode-and-launch-commands_1">Connect to a node in interactive mode and launch commands:<a class="headerlink" href="#connect-to-a-node-in-interactive-mode-and-launch-commands_1" title="Permanent link">#</a></h4>
+<p>To connect to a node in interactive mode for X minutes , use the following command :</p>
+<p><code>srun -p short --time=X:00 --pty bash -i</code></p>
+<p>Then you can launch on this node without using the srun prefix srun</p>
+<h4 id="launching-commands-from-the-master">Launching commands from the master<a class="headerlink" href="#launching-commands-from-the-master" title="Permanent link">#</a></h4>
+<p>The following command allocate computing resources ( nodes, memory, cores) and immediately launch the command on each allocate resource.</p>
+<p><code>srun + command</code></p>
+<p>Example:</p>
+<pre><code>module load bioinfo/FastQC/0.11.9
+srun -p highmemplus --nodelist=node5 fastqc -t 2 agropolis_2022/data/untrimmed_lr_fastq/all_guppy.fastq
+</code></pre>
+<h3 id="launching-jobs-via-a-script">Launching jobs via a script<a class="headerlink" href="#launching-jobs-via-a-script" title="Permanent link">#</a></h3>
+<p>The batch mode allows to launch an analysis by following the steps described into a script</p>
+<p>Slurm allows to use different types of scripts such as bash, perl or python.</p>
+<p>Slurm allocates the desired computing resources and launch analyses on these resources in background.</p>
+<p>To be interpreted by Slurm, the script should contain a specific header with all the keyword <strong>#SBATCH</strong> to precise the Slurm options. .</p>
+<p>Slurm script example:</p>
+<pre><code>#!/bin/bash
+## Define job's name
+#SBATCH --job-name=flye
+## Define the number of tasks
+#SBATCH --ntasks=1
+## Choose the node
+#SBATCH --nodelist=node11
+## Choose partition
+#SBATCH --partition=long
+#Define the timelimit
+#SBATCH --time=400:00:00
+## Define the number of cpus
+#SBATCH --cpus-per-task=8
+## Define the amount of ram per cpu
+#SBATCH --mem-per-cpu=6000
+</code></pre>
+<p>To launch an analysis use the following command:</p>
+<p><code>sbatch script.sh</code></p>
+<p>with <code>script.sh</code> the name of the script to use.</p>
+<h4 id="check-job-status">Check job status<a class="headerlink" href="#check-job-status" title="Permanent link">#</a></h4>
+<p><code>sacct -S 2020-11-2 -u galal --format=jobid,jobname,user,submit,start,end,state,NNodes,CPUTimeRAW,comment,Timelimit,TotalCPU,CPUTime,MaxDiskWrite,NodeList</code></p>
+<p>For checking all the jobs of a certain user:</p>
+<p><code>squeue -u username</code></p>
+
+			<br>
+			
+
+
+
+
+
+
+<div class="row pt-2 pb-4">
+	<div class="col-sm text-center text-sm-left">
+		<a href="../project_organisation/" class="btn btn-sm btn-outline-dark">
+			<i class="fa fa-chevron-left" aria-hidden="true"></i>
+			Previous
+		</a>
+		<a href="../project_organisation/" class="btn btn-sm btn-link">
+			Project organisation
+		</a>
+	</div>
+	
+
+	
+	<div class="col-sm text-center text-sm-right">
+		<a href="../file_formats/" class="btn btn-sm btn-link">
+			File formats
+		</a>
+		<a href="../file_formats/" class="btn btn-sm btn-outline-dark">
+			Next
+			<i class="fa fa-chevron-right" aria-hidden="true"></i>
+		</a>
+	</div>
+	
+</div>
+
+			<br>
+		</div>
+
+		<footer class="container-fluid wm-page-content text-center small">
+			<p>
+			<a href="https://github.com/jhayer/bacterial_genomics_training/edit/master/docs/itrop.md" target="_blank">Edit on jhayer/bacterial_genomics_training</a>
+			</p>
+			<details>
+				<summary>
+					Documentation built with <a href="http://www.mkdocs.org/" target="_blank">MkDocs</a> using  <a href="https://github.com/Siphalor/mkdocs-custommill" target="_blank">CustomMill</a>.
+				</summary>
+				<h6 class="mt-2">Additional Licenses</h6>
+				<ul><li>
+						CustomMill is based on the <a href="https://github.com/gristlabs/mkdocs-windmill" target="_blank">Windmill</a> theme by Grist Labs, licensed under the <a href="https://github.com/gristlabs/mkdocs-windmill/blob/master/LICENSE" target="_blank">MIT License</a>
+					</li>
+					<li>
+						CustomMill includes <a href="https://getbootstrap.com" target="_blank">Bootstrap</a> version 5.1.3. This is available under the <a href="https://github.com/twbs/bootstrap/blob/master/LICENSE" target="_blank">MIT License</a>.
+					</li>
+					<li>
+						Syntax highlighting is implemented via <a href="https://highlightjs.org" target="_blank">highlight.js</a> licensed under the BSD 3-Clause License and the included github styling made by Vasily Polovnyov.
+					</li>
+					<li>
+						Icons on this site are from <a href="https://fontawesome.com/" target="_blank">Font Awesome</a> which is licensed under the <a href="https://fontawesome.com/license/free" target="_blank">Font Awesome Free License</a>.
+					</li></ul>
+				<p>Built at 2022-11-11 16:51:21 UTC</p>
+			</details>
+		</footer>
+
+		
+	</body>
+</html>

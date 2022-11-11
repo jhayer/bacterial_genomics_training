@@ -79,10 +79,10 @@
 
 	
 	<div class="col-sm text-center text-sm-right">
-		<a href="../file_formats/" class="btn btn-sm btn-link">
-			File formats
+		<a href="../itrop/" class="btn btn-sm btn-link">
+			iTrop computing cluster
 		</a>
-		<a href="../file_formats/" class="btn btn-sm btn-outline-dark">
+		<a href="../itrop/" class="btn btn-sm btn-outline-dark">
 			Next
 			<i class="fa fa-chevron-right" aria-hidden="true"></i>
 		</a>
@@ -142,10 +142,11 @@ Let us create those three directories</p>
 </code></pre>
 <p>then we download our data file and give it a more appropriate name</p>
 <pre><code class="language-bash">wget https://ndownloader.figshare.com/files/2292169
-mv 2292169 survey_data.csv
+mv 2292169 data_joined.csv
 </code></pre>
 <p>Since we'll never modify our raw data file (or at least we <em>do not want to!</em>) it is safer to remove the writing permissions</p>
-<pre><code class="language-bash">chmod -w survey_data.csv
+<pre><code class="language-bash">chmod -w data_joined.csv
+ls -l
 </code></pre>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -154,7 +155,8 @@ Usually when you download data that is several gigabytes large, they will usuall
 You learnt about compression during the <a href="software">installing software</a> lesson.</p>
 </div>
 <p>Let us look at the first few lines of our file:</p>
-<pre><code class="language-bash">head data/data_joined.csv
+<pre><code class="language-bash">cd ..
+head data/data_joined.csv
 </code></pre>
 <p>Our data file is a <code>.csv</code> file, that is a file where fields are separated by commas <code>,</code>.
 Each row represent an animal that was caught in a plot, and each column contains information about that animal.</p>
@@ -304,10 +306,10 @@ Now with the loop</p>
 
 	
 	<div class="col-sm text-center text-sm-right">
-		<a href="../file_formats/" class="btn btn-sm btn-link">
-			File formats
+		<a href="../itrop/" class="btn btn-sm btn-link">
+			iTrop computing cluster
 		</a>
-		<a href="../file_formats/" class="btn btn-sm btn-outline-dark">
+		<a href="../itrop/" class="btn btn-sm btn-outline-dark">
 			Next
 			<i class="fa fa-chevron-right" aria-hidden="true"></i>
 		</a>
@@ -339,7 +341,7 @@ Now with the loop</p>
 					<li>
 						Icons on this site are from <a href="https://fontawesome.com/" target="_blank">Font Awesome</a> which is licensed under the <a href="https://fontawesome.com/license/free" target="_blank">Font Awesome Free License</a>.
 					</li></ul>
-				<p>Built at 2022-10-17 13:22:35 UTC</p>
+				<p>Built at 2022-11-11 16:51:21 UTC</p>
 			</details>
 		</footer>
 

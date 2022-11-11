@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		
+		
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+		<meta name="author" content="Juliette Hayer and Lokman Galal">
+		<link rel="canonical" href="https://jhayer.github.io/bacterial_genomics_training/assembly_hybrid/">
+		<link rel="shortcut icon" href="../img/favicon.ico">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+		<title>Hybrid assembly - Bioinformatics Tutorials for Bacterial Genomics</title>
+		<link href="../bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+		<link href="../css/font-awesome-5.12.2-all.min.css" rel="stylesheet">
+		<link href="../css/base.css" rel="stylesheet">
+		<link rel="stylesheet" href="../css/highlight-github.css">
+		<script src="../bootstrap/dist/js/bootstrap.min.js"></script>
+		<script src="../js/highlight.pack.js"></script>
+		
+		<script>
+			var base_url = '..';
+			var home_url = '../usage';
+			var is_outer_page = false;
+			
+			var pageToc = [
+				{title: "Hybrid Genome Assembly using long and short reads data", url: "#_top", children: [
+						
+				{title: "Getting the data", url: "#_top", children: [
+				]},
+				{title: "Unicycler hybrid assembly", url: "#unicycler-hybrid-assembly", children: [
+				]},
+				{title: "Quality of the Assembly", url: "#quality-of-the-assembly", children: [
+				]},
+				{title: "Assembly Completeness", url: "#assembly-completeness", children: [
+				]},
+				]},
+			];
+
+		</script>
+		<script src="../js/base.js"></script> 
+	</head>
+
+	<body class="inner-page">
+		
+
+		<div class="container-fluid wm-page-content">
+			<a name="_top" aria-hidden="true"></a>
+			
+
+
+
+
+
+
+<div class="row pt-2 pb-4">
+	<div class="col-sm text-center text-sm-left">
+		<a href="../long_reads/" class="btn btn-sm btn-outline-dark">
+			<i class="fa fa-chevron-left" aria-hidden="true"></i>
+			Previous
+		</a>
+		<a href="../long_reads/" class="btn btn-sm btn-link">
+			Long reads
+		</a>
+	</div>
+	
+
+	
+	<div class="col-sm text-center text-sm-right">
+		<a href="../variant_calling/" class="btn btn-sm btn-link">
+			Mapping and variant calling
+		</a>
+		<a href="../variant_calling/" class="btn btn-sm btn-outline-dark">
+			Next
+			<i class="fa fa-chevron-right" aria-hidden="true"></i>
+		</a>
+	</div>
+	
+</div>
+
+			
+
+			<h1 id="hybrid-genome-assembly-using-long-and-short-reads-data">Hybrid Genome Assembly using long and short reads data<a class="headerlink" href="#hybrid-genome-assembly-using-long-and-short-reads-data" title="Permanent link">#</a></h1>
+<p>In this practical we will perform the assembly of <em>Klebsiella pneumoniae</em>, using the short and the long reads that we have trimmed in previous tutorials.</p>
+<h2 id="getting-the-data">Getting the data<a class="headerlink" href="#getting-the-data" title="Permanent link">#</a></h2>
+<p>We have trimmed the raw short-reads and the long reads in the previous steps of the training, so we will now assemble them into longer sequences called contigs, using a method of hybrid assembly combining both long and short reads, with the <a href="https://github.com/rrwick/Unicycler">Unicycler</a> pipeline.</p>
+<p>Find your 3 fastq(.gz) files containing the trimmed reads for strain K2.</p>
+<pre><code class="language-bash">cd results
+ls -l
+</code></pre>
+<h2 id="unicycler-hybrid-assembly">Unicycler hybrid assembly<a class="headerlink" href="#unicycler-hybrid-assembly" title="Permanent link">#</a></h2>
+<p>As you might ghave noticed, assemblies can take some time. For that reason, we will prepare a <code>unicycler_assembly_K2.sh</code> script that we will run on the Slurm job scheduler, using the <code>sbatch</code> command.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You need to ask the teacher which partition to use !</p>
+</div>
+<pre><code>#!/bin/bash
+## SLURM CONFIG ##
+
+#SBATCH --job-name=unicycler
+#SBATCH --output=%x.%j.out
+#SBATCH --cpus-per-task 4
+#SBATCH --time=24:00:00
+#SBATCH -p SELECTED_PARTITION
+#SBATCH --mail-type=FAIL,END
+#SBATCH --mem-per-cpu=4G
+
+##
+module load bioinfo/racon/1.4.3
+module load bioinfo/unicycler/0.4.4
+
+unicycler -1 K2_Illu_R1_trimmed.fastq -2 K2_Illu_R2_trimmed.fastq --long K2_MinION.nanofilt_trimmed.fastq \
+  -o K2_unicycler_assembly -t 4
+
+</code></pre>
+<p>When you think that your script is ready, you can run the job with SLURM using this command (exit the <code>srun</code> if it is still active):</p>
+<pre><code class="language-bash">sbatch unicycler_assembly_K2.sh
+</code></pre>
+<p>Then check that your script is "Running" by typing:</p>
+<pre><code class="language-bash">squeue
+
+## to see only your jobs, select the user
+squeue -u your_login
+</code></pre>
+<p>The result of the assembly is in the directory <code>K2_unicycler_assembly</code> under the name <code>assembly.fasta</code>
+First, have a look of the Unicycler output directory.</p>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>what are the different files there?</p>
+</div>
+<p>Check the assembly graph (gfa file) with Bandage =&gt; you will need to use the <code>scp</code> command from your computer.</p>
+<p>Let's now make a link of the file containing the assembled scaffolds, to simplify the run of Quast and BUSCO</p>
+<pre><code class="language-bash">ln -s K2_unicycler_assembly/assembly.fasta K2_unicycler_scaffolds.fasta
+</code></pre>
+<p>and look at it</p>
+<pre><code class="language-bash">head K2_unicycler_scaffolds.fasta
+</code></pre>
+<h2 id="quality-of-the-assembly">Quality of the Assembly<a class="headerlink" href="#quality-of-the-assembly" title="Permanent link">#</a></h2>
+<p>QUAST is a software evaluating the quality of genome assemblies by computing various metrics, including</p>
+<p>First we might need to type the <code>srun</code> command to book the resources (the previous step was with <code>sbatch</code>):</p>
+<pre><code class="language-bash">srun -p SELECTED_PARTITION --cpus-per-task 2 --pty bash -i
+</code></pre>
+<p>Run Quast on your assembly (type the srun command first if this is not done already)</p>
+<pre><code class="language-bash">module load bioinfo/quast/5.0.2
+module load bioinfo/bedtools/2.30.0
+module load bioinfo/minimap2/2.24
+
+quast.py -o K2_unicycler_quast -t 2 --conserved-genes-finding --gene-finding \
+  --pe1 K2_Illu_trimmed_R1.fastq.gz --pe2 K2_Illu_trimmed_R2.fastq.gz K2_unicycler_scaffolds.fasta
+</code></pre>
+<p>and take a look at the text report</p>
+<pre><code class="language-bash">cat K2_unicycler_quast/report.txt
+</code></pre>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>How well does the assembly total size and coverage correspond to your earlier estimation?</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>How many contigs in total did the assembly produce?</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>Has the assembly improved compared with short-reads only assembly? in term of N50 and L50 for example.</p>
+</div>
+<p>Let's now check the completeness in term of essential genes expected with BUSCO</p>
+<h2 id="assembly-completeness">Assembly Completeness<a class="headerlink" href="#assembly-completeness" title="Permanent link">#</a></h2>
+<p>You can find more info regarding BUSCO in the short-reads assembly tutorial.
+Let's run it !</p>
+<pre><code class="language-bash">module load bioinfo/BUSCO/5.2.2
+
+busco -i K2_unicycler_scaffolds.fasta -o K2_unicycler_busco --mode genome --lineage_dataset enterobacterales_odb10
+</code></pre>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>How many marker genes has <code>busco</code> found?
+Was this number improved compared to previous assemblies of short-reads only and long-reads only ?</p>
+</div>
+
+			<br>
+			
+
+
+
+
+
+
+<div class="row pt-2 pb-4">
+	<div class="col-sm text-center text-sm-left">
+		<a href="../long_reads/" class="btn btn-sm btn-outline-dark">
+			<i class="fa fa-chevron-left" aria-hidden="true"></i>
+			Previous
+		</a>
+		<a href="../long_reads/" class="btn btn-sm btn-link">
+			Long reads
+		</a>
+	</div>
+	
+
+	
+	<div class="col-sm text-center text-sm-right">
+		<a href="../variant_calling/" class="btn btn-sm btn-link">
+			Mapping and variant calling
+		</a>
+		<a href="../variant_calling/" class="btn btn-sm btn-outline-dark">
+			Next
+			<i class="fa fa-chevron-right" aria-hidden="true"></i>
+		</a>
+	</div>
+	
+</div>
+
+			<br>
+		</div>
+
+		<footer class="container-fluid wm-page-content text-center small">
+			<p>
+			<a href="https://github.com/jhayer/bacterial_genomics_training/edit/master/docs/assembly_hybrid.md" target="_blank">Edit on jhayer/bacterial_genomics_training</a>
+			</p>
+			<details>
+				<summary>
+					Documentation built with <a href="http://www.mkdocs.org/" target="_blank">MkDocs</a> using  <a href="https://github.com/Siphalor/mkdocs-custommill" target="_blank">CustomMill</a>.
+				</summary>
+				<h6 class="mt-2">Additional Licenses</h6>
+				<ul><li>
+						CustomMill is based on the <a href="https://github.com/gristlabs/mkdocs-windmill" target="_blank">Windmill</a> theme by Grist Labs, licensed under the <a href="https://github.com/gristlabs/mkdocs-windmill/blob/master/LICENSE" target="_blank">MIT License</a>
+					</li>
+					<li>
+						CustomMill includes <a href="https://getbootstrap.com" target="_blank">Bootstrap</a> version 5.1.3. This is available under the <a href="https://github.com/twbs/bootstrap/blob/master/LICENSE" target="_blank">MIT License</a>.
+					</li>
+					<li>
+						Syntax highlighting is implemented via <a href="https://highlightjs.org" target="_blank">highlight.js</a> licensed under the BSD 3-Clause License and the included github styling made by Vasily Polovnyov.
+					</li>
+					<li>
+						Icons on this site are from <a href="https://fontawesome.com/" target="_blank">Font Awesome</a> which is licensed under the <a href="https://fontawesome.com/license/free" target="_blank">Font Awesome Free License</a>.
+					</li></ul>
+				<p>Built at 2022-11-11 16:51:21 UTC</p>
+			</details>
+		</footer>
+
+		
+	</body>
+</html>
