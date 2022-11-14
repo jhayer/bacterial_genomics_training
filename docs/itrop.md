@@ -140,7 +140,7 @@ The following command allocate computing resources ( nodes, memory, cores) and i
 Example:
 ```
 module load bioinfo/FastQC/0.11.9
-srun -p highmemplus --nodelist=node5 fastqc -t 2 agropolis_2022/data/untrimmed_lr_fastq/all_guppy.fastq
+srun -p highmemplus --nodelist=node5 fastqc -t 2 K1_MinION.fastq.gz
 ```
 
 ### Launching jobs via a script
@@ -180,6 +180,10 @@ with `script.sh` the name of the script to use.
 
 #### Check job status
 `sacct -S 2020-11-2 -u galal --format=jobid,jobname,user,submit,start,end,state,NNodes,CPUTimeRAW,comment,Timelimit,TotalCPU,CPUTime,MaxDiskWrite,NodeList`
+
+For checking all the jobs launched on the cluster:
+
+`squeue`
 
 For checking all the jobs of a certain user:
 
