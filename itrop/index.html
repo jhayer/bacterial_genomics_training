@@ -161,7 +161,7 @@ Then type your new password twice.</p>
 <p><code>srun + command</code></p>
 <p>Example:</p>
 <pre><code>module load bioinfo/FastQC/0.11.9
-srun -p highmemplus --nodelist=node5 fastqc -t 2 agropolis_2022/data/untrimmed_lr_fastq/all_guppy.fastq
+srun -p highmemplus --nodelist=node5 fastqc -t 2 K1_MinION.fastq.gz
 </code></pre>
 <h3 id="launching-jobs-via-a-script">Launching jobs via a script<a class="headerlink" href="#launching-jobs-via-a-script" title="Permanent link">#</a></h3>
 <p>The batch mode allows to launch an analysis by following the steps described into a script</p>
@@ -190,6 +190,8 @@ srun -p highmemplus --nodelist=node5 fastqc -t 2 agropolis_2022/data/untrimmed_l
 <p>with <code>script.sh</code> the name of the script to use.</p>
 <h4 id="check-job-status">Check job status<a class="headerlink" href="#check-job-status" title="Permanent link">#</a></h4>
 <p><code>sacct -S 2020-11-2 -u galal --format=jobid,jobname,user,submit,start,end,state,NNodes,CPUTimeRAW,comment,Timelimit,TotalCPU,CPUTime,MaxDiskWrite,NodeList</code></p>
+<p>For checking all the jobs launched on the cluster:</p>
+<p><code>squeue</code></p>
 <p>For checking all the jobs of a certain user:</p>
 <p><code>squeue -u username</code></p>
 
@@ -250,7 +252,7 @@ srun -p highmemplus --nodelist=node5 fastqc -t 2 agropolis_2022/data/untrimmed_l
 					<li>
 						Icons on this site are from <a href="https://fontawesome.com/" target="_blank">Font Awesome</a> which is licensed under the <a href="https://fontawesome.com/license/free" target="_blank">Font Awesome Free License</a>.
 					</li></ul>
-				<p>Built at 2022-11-11 16:51:21 UTC</p>
+				<p>Built at 2022-11-15 08:28:54 UTC</p>
 			</details>
 		</footer>
 
