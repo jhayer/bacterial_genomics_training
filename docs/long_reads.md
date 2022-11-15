@@ -8,7 +8,7 @@ Base calling is the process of translating the electronic raw signal (fast5 form
 
 - **software**: guppy
 
-- **input data**: download from [here](https://202.153.211.253:5001/sharing/8tQZNApgN) => directory fast5 (course_data/practicals/basecalling_practical/fast5/)
+- **input data**: `/scratch/genesys_training/files/data/fast5/`
 
 - **[link to the tutorial](https://timkahlke.github.io/LongRead_tutorials/BS_G.html)**
 &nbsp;
