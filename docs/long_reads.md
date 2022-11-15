@@ -20,7 +20,7 @@ Verify the quality of reads within nanopore fastq files.
 
 - **software**: fastqc
 
-- **input data**: output of Basecalling (previous step)
+- **input data**: `/scratch/genesys_training/files/data/lr_fastq/all_guppy.fastq`
 
 - **[link to the tutorial](https://timkahlke.github.io/LongRead_tutorials/QC_F.html)**
 &nbsp;
@@ -32,7 +32,7 @@ Verify the quality of reads within nanopore fastq files.
 
 - **software**: porechop; nanofilt
 
-- **input data**: output of Basecalling passing quality control
+- **input data**: `/scratch/genesys_training/files/data/lr_fastq/all_guppy.fastq`
 
 - **[link to the tutorial](https://timkahlke.github.io/LongRead_tutorials/FTR.html)**
 &nbsp;
