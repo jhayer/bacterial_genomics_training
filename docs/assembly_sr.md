@@ -54,7 +54,7 @@ This will take some time...
 Because we know that this will take quite some time, we better put the command in a SLURM script that we can `sbatch`.
 In that way, we can log out and come back later, the job will keep running.
 
-You can prepare the script `spades_assembly_K2.sh`, this is an example to help you. Be careful and put the correct name in "your_login" for the paths to be correct.
+You can prepare the script `spades_assembly_K2.sh`, this is an example to help you.
 
 !!! tip
     You need to ask the teacher which partition to use !
@@ -92,6 +92,7 @@ squeue
 ## to see only your jobs, select the user
 squeue -u your_login
 ```
+Be careful and put the correct name in "your_login".
 
 The result of the assembly is in the directory `K2_spades_assembly` under the name `scaffolds.fasta`
 First, have a look of the SPAdes output directory.
@@ -131,7 +132,7 @@ module load bioinfo/bedtools/2.30.0
 module load bioinfo/minimap2/2.24
 
 quast.py -o K2_spades_quast -t 2 --conserved-genes-finding --gene-finding \
-  --pe1 K2_Illu_trimmed_R1.fastq.gz --pe2 K2_Illu_trimmed_R2.fastq.gz K2_spades_scaffolds.fasta
+  --pe1 K2_Illu_R1_trimmed.fastq --pe2 K2_Illu_R2_trimmed.fastq K2_spades_scaffolds.fasta
 ```
 
 and take a look at the text report

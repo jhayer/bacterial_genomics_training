@@ -1,0 +1,6 @@
+Frequency	Samples
+1	K1_unicycler_scaffolds_RGI_main
+1	K2_unicycler_scaffolds_RGI_main
+1	K3_unicycler_scaffolds_RGI_main
+1	K4_unicycler_scaffolds_RGI_main
+1	K5_unicycler_scaffolds_RGI_main
