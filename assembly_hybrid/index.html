@@ -90,7 +90,7 @@
 ls -l
 </code></pre>
 <h2 id="unicycler-hybrid-assembly">Unicycler hybrid assembly<a class="headerlink" href="#unicycler-hybrid-assembly" title="Permanent link">#</a></h2>
-<p>As you might ghave noticed, assemblies can take some time. For that reason, we will prepare a <code>unicycler_assembly_K2.sh</code> script that we will run on the Slurm job scheduler, using the <code>sbatch</code> command.</p>
+<p>As you might have noticed, assemblies can take some time. For that reason, we will prepare a <code>unicycler_assembly_K2.sh</code> script that we will run on the Slurm job scheduler, using the <code>sbatch</code> command.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>You need to ask the teacher which partition to use !</p>
@@ -110,7 +110,7 @@ ls -l
 module load bioinfo/racon/1.4.3
 module load bioinfo/unicycler/0.4.4
 
-unicycler -1 K2_Illu_R1_trimmed.fastq -2 K2_Illu_R2_trimmed.fastq --long K2_MinION.nanofilt_trimmed.fastq \
+unicycler -1 K2_Illu_R1_trimmed.fastq -2 K2_Illu_R2_trimmed.fastq --long K2_MinION.fastq.gz \
   -o K2_unicycler_assembly -t 4
 
 </code></pre>
@@ -235,7 +235,7 @@ Was this number improved compared to previous assemblies of short-reads only and
 					<li>
 						Icons on this site are from <a href="https://fontawesome.com/" target="_blank">Font Awesome</a> which is licensed under the <a href="https://fontawesome.com/license/free" target="_blank">Font Awesome Free License</a>.
 					</li></ul>
-				<p>Built at 2022-11-16 11:40:55 UTC</p>
+				<p>Built at 2022-11-18 15:52:35 UTC</p>
 			</details>
 		</footer>
 

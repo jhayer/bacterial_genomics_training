@@ -124,7 +124,7 @@ spades.py -1 K2_Illu_R1_trimmed.fastq -2 K2_Illu_R2_trimmed.fastq -o K2_spades_a
 <p>This will take some time...</p>
 <p>Because we know that this will take quite some time, we better put the command in a SLURM script that we can <code>sbatch</code>.
 In that way, we can log out and come back later, the job will keep running.</p>
-<p>You can prepare the script <code>spades_assembly_K2.sh</code>, this is an example to help you. Be careful and put the correct name in "your_login" for the paths to be correct.</p>
+<p>You can prepare the script <code>spades_assembly_K2.sh</code>, this is an example to help you.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>You need to ask the teacher which partition to use !</p>
@@ -156,6 +156,7 @@ spades.py -1 K2_Illu_R1_trimmed.fastq -2 K2_Illu_R2_trimmed.fastq -o K2_spades_a
 ## to see only your jobs, select the user
 squeue -u your_login
 </code></pre>
+<p>Be careful and put the correct name in "your_login".</p>
 <p>The result of the assembly is in the directory <code>K2_spades_assembly</code> under the name <code>scaffolds.fasta</code>
 First, have a look of the SPAdes output directory.</p>
 <div class="admonition question">
@@ -183,7 +184,7 @@ module load bioinfo/bedtools/2.30.0
 module load bioinfo/minimap2/2.24
 
 quast.py -o K2_spades_quast -t 2 --conserved-genes-finding --gene-finding \
-  --pe1 K2_Illu_trimmed_R1.fastq.gz --pe2 K2_Illu_trimmed_R2.fastq.gz K2_spades_scaffolds.fasta
+  --pe1 K2_Illu_R1_trimmed.fastq --pe2 K2_Illu_R2_trimmed.fastq K2_spades_scaffolds.fasta
 </code></pre>
 <p>and take a look at the text report</p>
 <pre><code class="language-bash">cat K2_spades_quast/report.txt
@@ -223,7 +224,7 @@ Coverage &gt;= 1x (%)          100.0
 Additionally, the file <code>K2_spades_quast/report.html</code></p>
 <p>You can either download it and open it in your own web browser, or we make it available for your convenience:</p>
 <ul>
-<li><a href="data/assembly/quast_report.html">K2_spades_quast_report.html</a></li>
+<li><a href="../data/assembly/quast_report.html">K2_spades_quast_report.html</a></li>
 </ul>
 <div class="admonition question">
 <p class="admonition-title">Question</p>
@@ -319,7 +320,7 @@ busco --list-datasets
 					<li>
 						Icons on this site are from <a href="https://fontawesome.com/" target="_blank">Font Awesome</a> which is licensed under the <a href="https://fontawesome.com/license/free" target="_blank">Font Awesome Free License</a>.
 					</li></ul>
-				<p>Built at 2022-11-16 11:40:55 UTC</p>
+				<p>Built at 2022-11-18 15:52:35 UTC</p>
 			</details>
 		</footer>
 

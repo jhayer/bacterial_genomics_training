@@ -1,0 +1,64 @@
+gene,K4_unicycler_scaffolds_RGI_main,K3_unicycler_scaffolds_RGI_main,K5_unicycler_scaffolds_RGI_main,K1_unicycler_scaffolds_RGI_main,K2_unicycler_scaffolds_RGI_main
+TEM-1,2,2,2,2,0
+qacEdelta1,0,2,2,0,0
+SHV-187,0,0,0,0,2
+SHV-12,2,0,0,2,0
+floR,0,0,0,1,0
+QnrS1,0,0,0,2,0
+SHV-100,0,0,0,2,0
+oqxA,2,2,1,2,2
+Klebsiella pneumoniae KpnE,1,2,1,2,1
+Klebsiella pneumoniae KpnF,1,2,1,2,2
+LptD,1,2,1,2,2
+AAC(3)-IIe,0,1,1,1,0
+vanG,1,1,1,1,1
+rsmA,1,1,1,1,1
+oqxB,1,1,1,1,1
+msbA,1,1,1,1,1
+mdtC,1,1,1,1,1
+mdtB,1,1,1,1,1
+marA,1,1,1,1,1
+eptB,1,1,1,1,1
+emrR,1,1,1,1,1
+baeR,1,1,1,1,1
+acrD,1,1,1,1,1
+acrB,1,1,1,1,1
+PmrF,1,1,1,1,1
+OmpA,1,1,1,1,1
+Klebsiella pneumoniae OmpK37,1,1,1,1,1
+Klebsiella pneumoniae KpnH,1,1,1,1,1
+Klebsiella pneumoniae KpnG,1,1,1,1,1
+Haemophilus influenzae PBP3 conferring resistance to beta-lactam antibiotics,1,1,1,1,1
+Escherichia coli mdfA,1,1,1,1,1
+Escherichia coli marR mutant conferring antibiotic resistance,1,1,1,1,1
+Escherichia coli UhpT with mutation conferring resistance to fosfomycin,1,1,1,1,1
+Escherichia coli EF-Tu mutants conferring resistance to Pulvomycin,1,1,1,1,1
+ArnT,1,1,1,1,1
+CRP,1,1,1,1,1
+fosA5,0,0,1,0,1
+CTX-M-14,0,0,2,0,0
+OKP-B-6,0,0,2,0,0
+AAC(6')-Ib10,1,0,1,0,0
+cmlA5,0,0,1,0,0
+Escherichia coli soxS with mutation conferring antibiotic resistance,0,0,1,0,0
+Klebsiella pneumoniae acrR with mutation conferring multidrug antibiotic resistance,0,0,1,0,0
+catI,2,2,0,0,0
+qacE,1,0,0,0,0
+APH(6)-Id,1,0,0,0,0
+APH(3'')-Ib,1,0,0,0,0
+APH(3')-Ia,1,0,0,0,0
+sul2,2,0,0,0,0
+SHV-11,2,0,0,0,0
+OXA-9,2,0,0,0,0
+AAC(3)-IId,2,0,0,0,0
+CTX-M-15,2,0,0,0,0
+dfrA1,0,1,0,0,0
+Escherichia coli parC conferring resistance to fluoroquinolones,0,1,0,0,0
+Klebsiella pneumoniae ramR mutants,0,1,0,0,0
+sul1,0,2,0,0,0
+SAT-2,0,2,0,0,0
+SHV-28,0,2,0,0,0
+adeF,1,1,0,0,1
+FosA6,1,1,0,1,0
+ANT(3'')-IIa,1,1,0,0,0
+Salmonella enterica gyrA with mutation conferring resistance to triclosan,1,1,0,0,0

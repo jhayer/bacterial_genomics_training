@@ -111,7 +111,7 @@ mkdir annotation
 cd annotation
 </code></pre>
 <p>You will link the hybrid assemblies of the 5 Klebsiella strains in this annotation directory:</p>
-<pre><code class="language-bash">ln -s ../K*_unicycler_scaffolds.fasta
+<pre><code class="language-bash">ln -s ../unicycler_assemblies_5_Kp/K*_unicycler_scaffolds.fasta
 </code></pre>
 <p>You will also need a proteins set specific of <em>Klebsiella pneumoniae</em> for the annotation. You can go to the <a href="https://www.uniprot.org">Uniprot/Swiss-Prot</a> database website and search for all the proteins sequences for the organism <em>Klebsiella pneumoniae</em>, select only the <em>reviewed</em> entries, and download the fasta file of those.</p>
 <div class="admonition question">
@@ -164,14 +164,9 @@ prokka --force --genus Klebsiella --species pneumoniae \
 <pre><code class="language-bash">for i in K*scaffolds.fasta; do sbatch ../scripts/prokka_kp.sh $i; done
 </code></pre>
 <h2 id="visualising-the-annotation">Visualising the annotation<a class="headerlink" href="#visualising-the-annotation" title="Permanent link">#</a></h2>
-<p>Artemis is a graphical Java program to browse annotated genomes. Download it <a href="http://www.sanger.ac.uk/science/tools/artemis">here</a> and install it on your local computer.</p>
-<p>Copy the .gff file produced by prokka on your computer, and open it with artemis.</p>
-<p>You will be overwhelmed and/or confused at first, and possibly permanently. Here are some tips:</p>
-<ul>
-<li>There are 3 panels: feature map (top), sequence (middle), feature list (bottom)</li>
-<li>Click right-mouse-button on bottom panel and select Show products</li>
-<li>Zooming is done via the vertical scroll bars in the two top panels</li>
-</ul>
+<p>Ugene is a graphical program to perform some bioinformatics analyses. Notably, it allows to browse annotated genomes, and to curate annotations if needed.
+Download <a href="http://ugene.net">Ugene here</a> and install it on your local computer.</p>
+<p>Copy the .gff file produced by prokka on your computer, and open it with Ugene.</p>
 
 			<br>
 			
@@ -230,7 +225,7 @@ prokka --force --genus Klebsiella --species pneumoniae \
 					<li>
 						Icons on this site are from <a href="https://fontawesome.com/" target="_blank">Font Awesome</a> which is licensed under the <a href="https://fontawesome.com/license/free" target="_blank">Font Awesome Free License</a>.
 					</li></ul>
-				<p>Built at 2022-11-16 11:40:55 UTC</p>
+				<p>Built at 2022-11-18 15:52:35 UTC</p>
 			</details>
 		</footer>
 
