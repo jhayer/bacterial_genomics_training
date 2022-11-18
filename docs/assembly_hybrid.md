@@ -16,7 +16,7 @@ ls -l
 
 ## Unicycler hybrid assembly
 
-As you might ghave noticed, assemblies can take some time. For that reason, we will prepare a `unicycler_assembly_K2.sh` script that we will run on the Slurm job scheduler, using the `sbatch` command.
+As you might have noticed, assemblies can take some time. For that reason, we will prepare a `unicycler_assembly_K2.sh` script that we will run on the Slurm job scheduler, using the `sbatch` command.
 
 !!! tip
     You need to ask the teacher which partition to use !
@@ -37,7 +37,7 @@ As you might ghave noticed, assemblies can take some time. For that reason, we w
 module load bioinfo/racon/1.4.3
 module load bioinfo/unicycler/0.4.4
 
-unicycler -1 K2_Illu_R1_trimmed.fastq -2 K2_Illu_R2_trimmed.fastq --long K2_MinION.nanofilt_trimmed.fastq \
+unicycler -1 K2_Illu_R1_trimmed.fastq -2 K2_Illu_R2_trimmed.fastq --long K2_MinION.fastq.gz \
   -o K2_unicycler_assembly -t 4
 
 ```

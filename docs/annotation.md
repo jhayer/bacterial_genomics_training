@@ -41,7 +41,7 @@ cd annotation
 You will link the hybrid assemblies of the 5 Klebsiella strains in this annotation directory:
 
 ```bash
-ln -s ../K*_unicycler_scaffolds.fasta
+ln -s ../unicycler_assemblies_5_Kp/K*_unicycler_scaffolds.fasta
 ```
 
 You will also need a proteins set specific of *Klebsiella pneumoniae* for the annotation. You can go to the [Uniprot/Swiss-Prot](https://www.uniprot.org) database website and search for all the proteins sequences for the organism *Klebsiella pneumoniae*, select only the *reviewed* entries, and download the fasta file of those.
@@ -113,12 +113,7 @@ for i in K*scaffolds.fasta; do sbatch ../scripts/prokka_kp.sh $i; done
 
 ## Visualising the annotation
 
-Artemis is a graphical Java program to browse annotated genomes. Download it [here](http://www.sanger.ac.uk/science/tools/artemis) and install it on your local computer.
+Ugene is a graphical program to perform some bioinformatics analyses. Notably, it allows to browse annotated genomes, and to curate annotations if needed.
+Download [Ugene here](http://ugene.net) and install it on your local computer.
 
-Copy the .gff file produced by prokka on your computer, and open it with artemis.
-
-You will be overwhelmed and/or confused at first, and possibly permanently. Here are some tips:
-
-* There are 3 panels: feature map (top), sequence (middle), feature list (bottom)
-* Click right-mouse-button on bottom panel and select Show products
-* Zooming is done via the vertical scroll bars in the two top panels
+Copy the .gff file produced by prokka on your computer, and open it with Ugene.
