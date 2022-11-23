@@ -115,7 +115,7 @@ module load bioinfo/kraken2/2.1.1
 
 mkdir Dol1_reads_unmapped_Kn2nt
 
-kraken2 --db /data/projects/banks/kraken2/nt/21-09/nt/ --memory-mapping --threads 4 --output Dol1_reads_unmapped_Kn2nt/Dol1_reads_unmapped_kn2_nt-res.txt --report Dol1_reads_unmapped_Kn2nt/Dol1_reads_unmapped_kn2_nt-report.txt --report-minimizer-data --paired Dol1_reads_unmapped.1.fastq Dol1_reads_unmapped.2.fastq
+kraken2 --db /data/projects/banks/kraken2/nt/21-09/nt/ --memory-mapping --threads 4 --output Dol1_reads_unmapped_Kn2nt/Dol1_reads_unmapped_kn2_nt-res.txt --report Dol1_reads_unmapped_Kn2nt/Dol1_reads_unmapped_kn2_nt-report.txt --paired Dol1_reads_unmapped.1.fastq Dol1_reads_unmapped.2.fastq
 ```
 
 This command can take very long, therefore we recommend you to prepare a more generic script for running Kraken, with the possibility to run on paired reads or on a single contigs fasta file.
@@ -131,13 +131,13 @@ Follow the example below to prepare a `kraken2_nt.sh` script in your `scripts` d
 #SBATCH -c 4
 #SBATCH --time=96:00:00
 #SBATCH -p SELECTED_PARTITION
-#SBATCH --mail-type=FAIL,END
 #SBATCH --mem-per-cpu=4G
 
 ###
 
 HELP="
 USAGE: kraken2_nt.sh reads_file1.fastq [reads_file2.fastq]
+  or: kraken2_nt.sh contigs.fasta
 "
 # If we didn't get any arguments, print help and exit
 if [[ $# < 1 ]]
@@ -170,11 +170,11 @@ then
 # Taxonomic classification with Kraken2 on nt db for paired end reads
 
     QUERY_FILE2=$2
-    kraken2 --db ${PATH_DB} --memory-mapping --threads 4 --output ${OUT_DIR}/${PREFIX}_kn2_nt-res.txt --report ${OUT_DIR}/${PREFIX}_kn2_nt-report.txt --report-minimizer-data --paired ${QUERY_FILE} ${QUERY_FILE2}
+    kraken2 --db ${PATH_DB} --memory-mapping --threads 4 --output ${OUT_DIR}/${PREFIX}_kn2_nt-res.txt --report ${OUT_DIR}/${PREFIX}_kn2_nt-report.txt --paired ${QUERY_FILE} ${QUERY_FILE2}
 else
 # one single input file (e.g: scaffolds.fasta)
 
-    kraken2 --db ${PATH_DB} --memory-mapping --threads 4 --output ${OUT_DIR}/${PREFIX}_kn2_nt-res.txt --report ${OUT_DIR}/${PREFIX}_kn2_nt-report.txt --report-minimizer-data ${QUERY_FILE}
+    kraken2 --db ${PATH_DB} --memory-mapping --threads 4 --output ${OUT_DIR}/${PREFIX}_kn2_nt-res.txt --report ${OUT_DIR}/${PREFIX}_kn2_nt-report.txt ${QUERY_FILE}
 fi
 
 ```
